@@ -1,24 +1,13 @@
 import { Logo } from '@/components/logo';
 import type { Experience } from '@/lib/content/types';
 
-/** 院校在前、实习在后，各自按内容里的顺序（实习已是倒序） */
+/**
+ * 一组经历（院校或实习）。
+ *
+ * 只负责把给到它的一串渲染出来 —— 院校与实习在首页是两个独立板块、各有自己的分隔线，
+ * 所以这里不再自己插分隔线，也不负责筛选。调用方决定给它哪一类。
+ */
 export function ExperienceList({ items }: { items: Experience[] }) {
-  const education = items.filter((item) => item.kind === 'education');
-  const work = items.filter((item) => item.kind === 'work');
-
-  return (
-    <div className="space-y-5">
-      {education.length > 0 ? <ExperienceGroup items={education} /> : null}
-      {/* 院校与实习之间断开，否则一串单位名读下来分不清哪段是哪类 */}
-      {education.length > 0 && work.length > 0 ? (
-        <div className="border-border border-t" role="presentation" />
-      ) : null}
-      {work.length > 0 ? <ExperienceGroup items={work} /> : null}
-    </div>
-  );
-}
-
-function ExperienceGroup({ items }: { items: Experience[] }) {
   return (
     <ul className="space-y-4">
       {items.map((item) => (

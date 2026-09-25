@@ -18,14 +18,22 @@ export function ProjectList({ items, moreLabel }: { items: Project[]; moreLabel:
       {items.map((project) => (
         <li
           key={project.id}
-          className="border-border flex flex-col border p-4 transition-colors hover:border-foreground/25"
+          className={cn(
+            // relative 是给标题链接的 after 伪元素定位用的，别去掉
+            'group border-border relative flex flex-col border p-4 transition-colors',
+            'hover:border-foreground/25 focus-within:border-foreground/25'
+          )}
         >
           <div className="flex items-start justify-between gap-3">
+            {/*
+              整张卡片可点：标题链接铺一层透明遮罩盖住整张卡（stretched link）。
+              不把整张卡包进 <a> 是因为里面还有一个 GitHub 链接 —— 交互元素不能嵌套。
+            */}
             <a
               href={project.href}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-baseline gap-1 text-[0.92rem] font-medium"
+              className="inline-flex items-baseline gap-1 text-[0.92rem] font-medium after:absolute after:inset-0 after:content-['']"
             >
               {project.name}
               <ArrowUpRight className="text-muted-foreground size-3 shrink-0 self-center" aria-hidden />
@@ -38,7 +46,11 @@ export function ProjectList({ items, moreLabel }: { items: Project[]; moreLabel:
                 rel="noreferrer"
                 title="GitHub"
                 aria-label={`${project.name} 的 GitHub 仓库`}
-                className="text-muted-foreground hover:text-foreground -mt-0.5 inline-flex no-underline transition-colors hover:no-underline"
+                /* relative z-10：压在标题那层遮罩之上，否则点不到 */
+                className={cn(
+                  'text-muted-foreground hover:text-foreground -mt-0.5 inline-flex relative z-10',
+                  'no-underline transition-colors hover:no-underline'
+                )}
               >
                 <Logo
                   src="/logos/contacts/github.svg"
