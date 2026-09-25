@@ -6,6 +6,12 @@ import type { Experience } from '@/lib/content/types';
  *
  * 只负责把给到它的一串渲染出来 —— 院校与实习在首页是两个独立板块、各有自己的分隔线，
  * 所以这里不再自己插分隔线，也不负责筛选。调用方决定给它哪一类。
+ *
+ * 排版上两件事是刻意的：
+ * - 字段之间用 `·` 而不是逗号。逗号会让「机构，部门，岗位」读成一个句子，
+ *   而它们其实是三个并列的标签；`·` 只做分隔，不参与断句。
+ * - 地点与日期并排放在右端，描述**另起一行**。地点和日期都是「时空坐标」，
+ *   摆在一起看一眼就够；描述是内容，和坐标挤在同一行会被挤成一条长句。
  */
 export function ExperienceList({ items }: { items: Experience[] }) {
   return (
@@ -18,16 +24,18 @@ export function ExperienceList({ items }: { items: Experience[] }) {
             <div className="flex flex-wrap items-baseline justify-between gap-x-4">
               <span className="text-[0.95rem] leading-snug">
                 {item.org}
-                {item.branch ? <span className="text-muted-foreground">，{item.branch}</span> : null}
-                {item.role ? <span className="text-muted-foreground">，{item.role}</span> : null}
+                {item.branch ? <span className="text-muted-foreground"> · {item.branch}</span> : null}
+                {item.role ? <span className="text-muted-foreground"> · {item.role}</span> : null}
               </span>
-              <span className="text-muted-foreground text-[0.78rem] tabular-nums">{item.period}</span>
+
+              <span className="text-muted-foreground flex shrink-0 items-baseline gap-x-3 text-[0.78rem] tabular-nums">
+                {item.location ? <span>{item.location}</span> : null}
+                <span>{item.period}</span>
+              </span>
             </div>
 
-            {item.location || item.description ? (
+            {item.description ? (
               <p className="text-muted-foreground mt-0.5 text-[0.82rem] leading-relaxed text-pretty">
-                {item.location ? <span className="tabular-nums">{item.location}</span> : null}
-                {item.location && item.description ? ' · ' : null}
                 {item.description}
               </p>
             ) : null}
