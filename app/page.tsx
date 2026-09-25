@@ -1,10 +1,10 @@
+import { Suspense } from 'react';
+
+import { ChatPanel, ChatPanelFallback } from '@/components/home/chat-panel';
 import { ContactRow } from '@/components/home/contact-row';
 import { ExperienceList } from '@/components/home/experience-list';
-import { GroupChat } from '@/components/home/group-chat';
 import { ProjectList } from '@/components/home/project-list';
 import { Section } from '@/components/section';
-import { fetchSnapshot } from '@/lib/chat/queries';
-import type { ChatSnapshot } from '@/lib/chat/types';
 import { getRequestContent } from '@/lib/content/server';
 
 // 群聊是活的，首屏必须每次请求重新取
@@ -23,14 +23,6 @@ export default async function HomePage() {
   const education = experiences.filter((item) => item.kind === 'education');
   const work = experiences.filter((item) => item.kind === 'work');
 
-  // 数据库抖一下不该让整页挂掉，群聊退回空态即可
-  let initial: ChatSnapshot = { messages: [], suggested: [] };
-  try {
-    initial = await fetchSnapshot();
-  } catch (error) {
-    console.error('[home] 群聊快照加载失败', error);
-  }
-
   return (
     <div className="mx-auto max-w-6xl px-6 sm:px-8">
       {/*
@@ -40,7 +32,7 @@ export default async function HomePage() {
         而写死一个值又会在左栏内容变长时溢出。群聊自己不给行高做任何贡献（见下），
         否则消息一多就把整行撑高、左栏跟着被拉伸、底部留出大片空白。
       */}
-      <div className="grid gap-x-14 gap-y-10 py-12 lg:grid-cols-2 lg:py-16">
+      <div className="grid gap-x-14 gap-y-10 pt-12 lg:grid-cols-2 lg:pt-16">
         {/*
           自上而下：标题 / 自我介绍 / 联系方式 / 感兴趣方向 / 教育经历 / 实习经历。
           前四块是一件事（我是谁），只用间距分开、不画线；分隔线只画两条 ——
@@ -89,11 +81,18 @@ export default async function HomePage() {
           移动端微信式的固定高度就是这个意思：高度不随消息条数变。
         */}
         <div className="flex h-[30rem] min-h-0 flex-col lg:h-auto lg:min-h-[36rem]">
-          <GroupChat initial={initial} labels={labels} locale={locale} />
+          {/*
+            群聊那条查询是整页最慢的一步（跨区域访问 Supabase，400ms 起），
+            放进 Suspense 后骨架先流式出来，群聊稍后补上 —— 盒子高度固定，后到也不顶版面。
+          */}
+          <Suspense fallback={<ChatPanelFallback labels={labels} />}>
+            <ChatPanel labels={labels} locale={locale} />
+          </Suspense>
         </div>
       </div>
 
-      <Section className="pb-16">
+      {/* 分隔线之上只留 24px —— 和左栏内部的分隔线同一节奏，之前是 grid 的 pb-16 顶着它 */}
+      <Section className="mt-6 pb-16">
         <ProjectList items={projects} moreLabel={labels.projectsMore} />
       </Section>
     </div>
