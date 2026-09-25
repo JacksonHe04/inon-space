@@ -6,7 +6,7 @@ import { CollabBadges } from '@/components/site-footer/collab-badges';
 import type { SiteViewTotals } from '@/lib/analytics/queries';
 import type { Labels } from '@/lib/content/types';
 import { BUILT_ON, TECH_STACK } from '@/lib/site-meta';
-import { fillTemplate } from '@/lib/template';
+import { fillTemplate, parseTemplate } from '@/lib/template';
 
 export function SiteFooter({
   name,
@@ -60,10 +60,20 @@ export function SiteFooter({
         {/*
           AI 协作单独一行：它与上面那排「构建在什么之上」是两件事，
           挤在一排会把「技术栈」和「协作署名」的语义搅在一起。
+
+          引导语是模板（中文形如「与 {models} 协作构建」），{models} 槽位放两枚
+          徽章 —— 与 LIFE 页署名句是同一个做法（parseTemplate）。
         */}
-        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
-          <span className="text-muted-foreground text-xs">{labels.footerCoBuilt}</span>
-          <CollabBadges />
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
+          {parseTemplate(labels.footerCoBuilt, ['models']).map((part, index) =>
+            part.kind === 'text' ? (
+              <span key={index} className="text-muted-foreground text-xs">
+                {part.text}
+              </span>
+            ) : (
+              <CollabBadges key={index} />
+            )
+          )}
         </div>
 
         <p className="text-muted-foreground text-xs">

@@ -242,7 +242,7 @@ export interface Labels {
   assistantName: string;
   /** 访客自己那条乐观消息的署名，等服务器返回真实身份前的占位 */
   you: string;
-  /** 访客名字输入框的占位符。刻意就写「访客」两个字，不加说明文案 */
+  /** 访客名字输入框的占位符，如「留下名字...」。不加说明文案，占位符自己说明用途 */
   chatNamePlaceholder: string;
   chatSending: string;
   /** 消息条数角标，`{n}` 会被替换成数字，如「{n} 条」 */
@@ -293,6 +293,8 @@ export interface Labels {
   footerRights: string;
   /** 开源技术栈的引导语，如「基于以下开源项目构建」 */
   footerBuiltWith: string;
+  /** AI 协作徽章的引导语。`{models}` 槽位会放两枚协作徽章，如「与 {models} 协作构建」 */
+  footerCoBuilt: string;
   /** 访问统计，`{visitors}` 与 `{views}` 会被替换成数字 */
   footerVisits: string;
 

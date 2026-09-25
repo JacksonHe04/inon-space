@@ -61,6 +61,7 @@ export const contentEn = {
 
     footerRights: 'All rights reserved',
     footerBuiltWith: 'Built on these open-source projects',
+    footerCoBuilt: 'Built in collaboration with {models}',
     footerVisits: '{visitors} visitors · {views} views',
 
     close: 'Close',

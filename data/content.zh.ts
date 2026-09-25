@@ -63,6 +63,7 @@ export const contentZh = {
     // 底栏
     footerRights: '保留所有权利',
     footerBuiltWith: '基于以下开源项目构建',
+    footerCoBuilt: '与 {models} 协作构建',
     footerVisits: '已有 {visitors} 位访客 · {views} 次浏览',
 
     close: '关闭',
