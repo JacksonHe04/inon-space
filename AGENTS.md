@@ -36,6 +36,26 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 
 代价是 GALLERY 每次请求都查一次 Supabase。条目变化频率是「天」级，所以正确的修法是把缓存下沉到数据层（`unstable_cache` 包住 `fetchGalleryItems`），而不是把页面变回静态——两者不可兼得。
 
+### 导航：预取要开，但首页必须排除
+
+动态路由默认**既不预取、也不进客户端缓存**，所以点一次 tab 要等约 400ms 服务端往返、然后整块内容突兀地换掉。修法是给链接加 `prefetch`：实测从 396ms 降到 18ms。
+
+**首页是唯一的例外，别再「顺手统一」它。** 它带着群聊快照；快照一旦被缓存，回访时会原样「回放」成旧的，而 Realtime 只推新增消息、从不补历史——缓存窗口里别人说的那几条就永远看不到了。宁可慢一点，也不能让群聊缺话。
+
+### 首页用 Suspense 隔离群聊那条查询
+
+「取最近 40 条消息」是首页最慢的一步：Supabase 与 Vercel 函数不在同一区域，实测 400ms 起，冷启动上秒。放在页面顶层 await，整页就都得等它——线上 `/` 与 `/life` 的 TTFB 差了 873ms，差额全是它。
+
+所以它被关进了 `ChatPanel` 的 Suspense 边界。**骨架必须照着真实面板的盒子画**（同样的分隔线、内边距、撑满高度），否则群聊落下的那一刻整页会往下一沉——那正是「切换时闪一下」的来源。实测零布局位移。
+
+### 访问统计
+
+挂到 Vercel 之前先读这几条，否则很容易把数字搞脏：
+
+- **事件名是 `v3_page_view`，不是 world 站的 `page_view`。** 日聚合表 `page_view_daily_stats` 按 `(profile_id, stat_date)` 归并，两个站共用一个 profile，沿用同一个事件名会把 world 的流量混进底栏那个数字。读取走 `page_view_site_totals`（按事件名读原始事件流）。
+- **只在正式环境计数。** 判断是服务端做的（`VERCEL_ENV === 'production'`），再作为 prop 传给客户端——客户端组件读 `process.env` 只会拿到 `undefined`，Next 只内联 `NEXT_PUBLIC_*`。
+- **IP 哈希只有一套实现**（`lib/analytics/hash.ts`），群聊的访客标识也用它。盐缺失时 `getIpSalt()` 直接抛错：回退到硬编码的盐等于把「不存原始 IP」变成一句空话。
+
 ### 内容的两个住处
 
 改动前先判断自己属于哪一侧：
@@ -83,6 +103,20 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 - **匿名只能读**。`chat_messages` 对匿名只开放 select，不开放 insert；所有写入走服务端 secret key。否则任何人都能伪造 assistant 身份发言。
 
 服务端只回稳定错误码（`rate_limited` / `too_long` / `empty` / `model_failed`），文案由客户端从 `labels` 取，保证多语言下正确。
+
+### 模型不一定听话，生成那一步要兜住
+
+`lib/chat/generate.ts` 里比一次 `generateText` 多做了两件事，都是线上 502 逼出来的：**先从半成品文本里把 JSON 抠出来，不行再重试一次**。
+
+原因是 provider 能力不一致。线上日志里 `z-ai/glm-4.5` 一直在告警 `The feature "responseFormat" is not supported`，AI SDK 于是退化成「让模型自己写 JSON，再把整段文本 parse 一遍」。而模型时不时先写一段大白话、再把 JSON 贴在后面：
+
+```
+音乐听很多，后摇和说唱是命 😄
+
+{ "reply": "音乐听很多…", "suggestedQuestions": [...] }
+```
+
+严格 parse 当场就崩，访客看到的是「发送失败」，再发一次可能又好了——**不是网络抖动，是输出格式不稳定**。换到支持结构化输出的模型（如 `anthropic/claude-sonnet-4.5`）能让主路径可靠起来，但兜底别撤：模型换回来就又用上了。
 
 ## 技术
 
