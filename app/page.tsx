@@ -42,26 +42,25 @@ export default async function HomePage() {
       */}
       <div className="grid gap-x-14 gap-y-10 py-12 lg:grid-cols-2 lg:py-16">
         {/*
-          六个板块，自上而下：标题 / 联系方式 / 自我介绍 / 感兴趣方向 / 教育经历 / 实习经历。
-          分隔线一律由 Section 自己带（border-t + pt-6），外层只给 space-y-6 ——
-          线上下各 24px，节奏对称。别再往这里叠外层的 gap 和 Section 的 pt，那是之前显乱的原因。
+          自上而下：标题 / 自我介绍 / 联系方式 / 感兴趣方向 / 教育经历 / 实习经历。
+          前四块是一件事（我是谁），只用间距分开、不画线；分隔线只画两条 ——
+          一条在「感兴趣方向」之后，一条在院校与实习之间。
+
+          线的节奏统一是「上方 24px（mt-6）+ 下方 24px（Section 自带 pt-6）」。
+          别再往这里叠外层的 gap，那正是之前显乱的原因。
         */}
-        <div className="space-y-6">
-          <h1 className="text-[1.55rem] leading-tight font-semibold tracking-tight">
-            {identity.greeting}
-          </h1>
+        <div>
+          <div className="space-y-4">
+            <h1 className="text-[1.55rem] leading-tight font-semibold tracking-tight">
+              {identity.greeting}
+            </h1>
 
-          <Section>
-            <ContactRow items={contacts} closeLabel={labels.close} />
-          </Section>
-
-          <Section>
             <p className="text-muted-foreground text-[0.95rem] leading-relaxed text-pretty">
               {identity.tagline}
             </p>
-          </Section>
 
-          <Section>
+            <ContactRow items={contacts} closeLabel={labels.close} />
+
             <ul className="flex flex-wrap gap-1.5">
               {identity.directions.map((direction) => (
                 <li key={direction} className="chip">
@@ -69,16 +68,16 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
-          </Section>
+          </div>
 
           {education.length > 0 ? (
-            <Section>
+            <Section className="mt-6">
               <ExperienceList items={education} />
             </Section>
           ) : null}
 
           {work.length > 0 ? (
-            <Section>
+            <Section className="mt-6">
               <ExperienceList items={work} />
             </Section>
           ) : null}

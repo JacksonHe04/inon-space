@@ -173,8 +173,13 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
   );
 
   return (
-    /* h-full + min-h-0：高度由外层定死，消息列表才能真的在自己的框里滚起来 */
-    <section className="border-border flex h-full min-h-0 flex-col border-t pt-6">
+    /*
+     * h-full + min-h-0：高度由外层定死，消息列表才能真的在自己的框里滚起来。
+     *
+     * 分隔线只在窄屏出现：那里左栏和群聊是上下叠的，需要一条线把两者分开；
+     * 宽屏是左右并排，群聊从自己的顶部开始往下排，上面再来一条线是多余的。
+     */
+    <section className="border-border flex h-full min-h-0 flex-col border-t pt-6 lg:border-t-0 lg:pt-0">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="text-muted-foreground text-[0.78rem]">{labels.chatSubtitle}</p>
         <span className="text-muted-foreground text-[0.7rem] tabular-nums">
@@ -283,6 +288,7 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
           className="flex items-center gap-2"
         >
           <input
+            name="message"
             value={input}
             onChange={(event) => setInput(event.target.value)}
             maxLength={CHAT_MAX_LENGTH}
