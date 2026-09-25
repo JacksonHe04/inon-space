@@ -1,14 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import type { Locale } from '@/lib/content/types';
+import { Globe } from 'lucide-react';
+
+import type { Labels, Locale } from '@/lib/content/types';
 import { LOCALES, LOCALE_COOKIE } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-
-const LABELS: Record<Locale, string> = {
-  zh: '中',
-  en: 'EN',
-};
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
@@ -18,38 +15,37 @@ function persistLocale(locale: Locale) {
 }
 
 /**
- * 语言切换：写 cookie 后刷新服务端组件。
- * 不改 URL —— 地址栏始终保持原样，这是刻意的。
+ * 语言切换。
  *
- * 只有一个语言时不渲染；等 'en' 进了 LOCALES 会自动出现。
+ * 不写成「中 / EN」—— 那是在显示「当前语言叫什么」，而访客要的是「换个语言」这个动作，
+ * 还得先看懂缩写才知道能点。地球图标本身就是国际化的通用符号，点一下就换。
+ *
+ * 尺寸与相邻的主题切换按钮保持一致：同一个位置上的两个控件长得不一样会很扎眼。
+ * 语言多于两种时这里要改成菜单，两三种用循环点击是合理的。
  */
-export function LocaleSwitch({ current }: { current: Locale }) {
+export function LocaleSwitch({ current, labels }: { current: Locale; labels: Labels }) {
   const router = useRouter();
 
   // 只有一种语言时没有可切的目标，整块不渲染
   if (LOCALES.length < 2) return null;
 
-  function pick(next: Locale) {
-    if (next === current) return;
+  function cycle() {
+    const next = LOCALES[(LOCALES.indexOf(current) + 1) % LOCALES.length];
     persistLocale(next);
     router.refresh();
   }
 
   return (
-    <div className="text-muted-foreground flex items-center gap-2 text-[0.7rem] tracking-wider uppercase">
-      {LOCALES.map((locale) => (
-        <button
-          key={locale}
-          type="button"
-          onClick={() => pick(locale)}
-          className={cn(
-            'transition-colors',
-            locale === current ? 'text-foreground font-semibold' : 'hover:text-foreground'
-          )}
-        >
-          {LABELS[locale] ?? locale.toUpperCase()}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      aria-label={labels.switchLanguage}
+      onClick={cycle}
+      className={cn(
+        'text-muted-foreground hover:text-foreground inline-flex size-6 cursor-pointer items-center justify-center',
+        'transition-colors'
+      )}
+    >
+      <Globe className="size-3.5" aria-hidden />
+    </button>
   );
 }

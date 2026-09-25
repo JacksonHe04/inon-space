@@ -71,7 +71,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             labels={content.labels}
             nav={content.nav}
             worldHref={content.world.href}
-            gallery={content.gallery}
           />
           <main className="flex-1">{children}</main>
           <SiteFooter name={content.identity.name} labels={content.labels} />
