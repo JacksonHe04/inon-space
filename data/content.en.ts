@@ -22,18 +22,19 @@ export const contentEn = {
   },
 
   labels: {
-    chatSubtitle: 'Everyone passing through leaves a trace here',
+    chatSubtitle: 'Leave a note here, together with everyone passing by',
     chatEmpty: 'Nobody has spoken yet. Will you be the first?',
     chatPlaceholder: 'Say something…',
     chatSend: 'Send',
     assistantName: 'Yingying',
     you: 'You',
+    chatNamePlaceholder: 'Leave a name...',
     chatSending: 'Yingying is thinking…',
-    chatSuggested: 'You could also ask',
     chatCount: '{n} messages',
     chatError: 'The signal dropped. Try again.',
     chatErrorTooFast: 'That was quick. Take a breath and try again.',
     chatErrorTooLong: 'A message can be up to 500 characters.',
+    chatErrorBusy: 'It is a little busy right now. Try again in a moment.',
 
     projectsMore: 'More fun little projects',
 
@@ -72,10 +73,18 @@ export const contentEn = {
     greeting: "Hi, I'm Jackson He",
     tagline: 'An AI Native product engineer, full-stack developer and part-time FDE',
     directions: [
-      'World Model & Multi-Modal',
-      'Coding Agent & AI DevOps',
-      'Agent Memory & Long Horizon',
-      'AI in Gaming & Music & Emotion',
+      'World Model',
+      'Multi-Modal',
+      'Coding Agent',
+      'AI DevOps',
+      'Agent Memory',
+      'Long Horizon',
+      'AI in Gaming',
+      'AI Music',
+      'AI Emotion',
+      '3D Model',
+      'Developer Ecosystem',
+      'Creator Ecosystem',
     ],
   },
 
@@ -264,7 +273,7 @@ export const contentEn = {
         city: 'Shanghai',
         period: '2025.12 – 2026.06',
         description:
-          'Ningguo Road, Changyang Campus, Huliandi — in Yangpu.',
+          'Yangpu, Ningguo Road, Changyang Campus, Huliandi.',
       },
       {
         city: 'Beijing',
@@ -279,7 +288,7 @@ export const contentEn = {
       {
         city: 'Qingyang',
         period: '2004 – 2022',
-        description: 'Behind Jiuhua Mountain — the years before I came of age',
+        description: 'Behind Jiuhua Mountain — the years before I came of age.',
       },
     ],
 
@@ -400,9 +409,9 @@ export const contentEn = {
         by: { name: 'Jingyi Wan', href: 'https://github.com/yvette-wanan' },
       },
       {
-        label: 'website',
+        label: 'personal website',
         href: 'https://xiaobaozi.cn',
-        by: { name: 'Ziye Tang', href: 'https://xiaobaozi.cn' },
+        by: { name: 'Ziye Tang', href: 'https://github.com/ZeroTang05' },
         byTemplate: 'owner',
       },
     ],

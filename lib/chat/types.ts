@@ -67,3 +67,5 @@ export function suggestedFrom(messages: ChatMessage[]): string[] {
 
 export const CHAT_PAGE_SIZE = 40;
 export const CHAT_MAX_LENGTH = 500;
+/** 访客自填名字的长度上限 —— 名字是署名，不需要长 */
+export const CHAT_NAME_MAX_LENGTH = 24;

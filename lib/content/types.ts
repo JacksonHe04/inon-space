@@ -242,13 +242,16 @@ export interface Labels {
   assistantName: string;
   /** 访客自己那条乐观消息的署名，等服务器返回真实身份前的占位 */
   you: string;
+  /** 访客名字输入框的占位符。刻意就写「访客」两个字，不加说明文案 */
+  chatNamePlaceholder: string;
   chatSending: string;
-  chatSuggested: string;
   /** 消息条数角标，`{n}` 会被替换成数字，如「{n} 条」 */
   chatCount: string;
   chatError: string;
   chatErrorTooFast: string;
   chatErrorTooLong: string;
+  /** 全站节流命中：攒一会儿再发 */
+  chatErrorBusy: string;
 
   /* HOME · 项目区末尾那张通向 GitHub 的卡片 */
   projectsMore: string;
@@ -302,7 +305,7 @@ export interface Labels {
 }
 
 /** 服务端只回错误码，文案由客户端从 labels 里取 —— 保证多语言下也正确 */
-export type ChatErrorCode = 'rate_limited' | 'too_long' | 'empty' | 'model_failed';
+export type ChatErrorCode = 'rate_limited' | 'busy' | 'too_long' | 'empty' | 'model_failed';
 
 export interface Content {
   locale: Locale;

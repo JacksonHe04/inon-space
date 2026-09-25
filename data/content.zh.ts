@@ -21,18 +21,19 @@ export const contentZh = {
 
   labels: {
     // HOME · 群聊：区块标题按设计去掉了，只留说明与状态
-    chatSubtitle: '每个路过的人都会在这里留下痕迹',
+    chatSubtitle: '和路过这里的朋友一起，留下点记录',
     chatEmpty: '还没有人说过话。第一个开口的会是你吗？',
     chatPlaceholder: '说点什么…',
     chatSend: '发送',
     assistantName: '小缨缨',
     you: '你',
+    chatNamePlaceholder: '留下名字...',
     chatSending: '小缨缨正在想…',
-    chatSuggested: '还可以聊',
     chatCount: '{n} 条',
     chatError: '信号没接上，再试一次。',
     chatErrorTooFast: '说得太快了，歇一会儿再说。',
     chatErrorTooLong: '一条消息最多 500 个字。',
+    chatErrorBusy: '这会儿人有点多，等一下再发。',
 
     // HOME · 项目区末尾那张通向 GitHub 的卡片
     projectsMore: '更多有意思的小项目',
@@ -74,10 +75,18 @@ export const contentZh = {
     greeting: '你好，我是何锦诚',
     tagline: '一位 AI Native 产品工程师 & 全栈开发者 & 兼职 FDE',
     directions: [
-      'World Model & Multi-Modal',
-      'Coding Agent & AI DevOps',
-      'Agent Memory & Long Horizon',
-      'AI in Gaming & Music & Emotion',
+      'World Model',
+      'Multi-Modal',
+      'Coding Agent',
+      'AI DevOps',
+      'Agent Memory',
+      'Long Horizon',
+      'AI in Gaming',
+      'AI Music',
+      'AI Emotion',
+      '3D Model',
+      'Developer Ecosystem',
+      'Creator Ecosystem',
     ],
   },
 
@@ -261,7 +270,7 @@ export const contentZh = {
       {
         city: '上海',
         period: '2025.12 – 2026.06',
-        description: '杨浦区宁国路、长阳创谷、互联宝地。',
+        description: '杨浦区、宁国路、长阳创谷、互联宝地。',
       },
       {
         city: '北京',
@@ -276,7 +285,7 @@ export const contentZh = {
       {
         city: '青阳',
         period: '2004 – 2022',
-        description: '九华后山，成年前的岁月鸿沟',
+        description: '九华后山，成年前的岁月鸿沟。',
       },
     ],
 
@@ -387,9 +396,9 @@ export const contentZh = {
         by: { name: '万竞屹', href: 'https://github.com/yvette-wanan' },
       },
       {
-        label: '网站',
+        label: '个人网站',
         href: 'https://xiaobaozi.cn',
-        by: { name: '唐子叶', href: 'https://xiaobaozi.cn' },
+        by: { name: '唐梓烨', href: 'https://github.com/ZeroTang05' },
         byTemplate: 'owner',
       },
     ],

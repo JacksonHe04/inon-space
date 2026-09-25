@@ -7,6 +7,7 @@ import { Avatar, SeedAvatar } from '@/components/chat/avatar';
 import { ASSISTANT_AVATAR } from '@/lib/chat/avatar';
 import {
   CHAT_MAX_LENGTH,
+  CHAT_NAME_MAX_LENGTH,
   rowToMessage,
   type ChatMessage,
   type ChatMessageRow,
@@ -26,6 +27,9 @@ interface GroupChatProps {
 
 /** AI 标识。中英文里都是「AI」，不随语言变，所以不做成 label */
 const AI_BADGE = 'AI';
+
+/** 访客自填名字在浏览器里的存放位置 */
+const NAME_STORAGE_KEY = 'inon_chat_name';
 
 /** 去重 + 按时间排序：自己的乐观消息和 realtime 推来的同一条会撞车 */
 function mergeMessages(current: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
@@ -60,6 +64,8 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 访客给自己起的名字。空着就用服务端按地理头推出来的那个
+  const [name, setName] = useState('');
   // 时间只在客户端格式化：服务端时区和访客时区未必一致，放服务端渲染会水合不上
   const isClient = useIsClient();
 
@@ -97,6 +103,15 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
     };
   }, []);
 
+  // 名字存本地：群聊是常来常往的地方，不该每次都让人重打一遍
+  useEffect(() => {
+    try {
+      setName(window.localStorage.getItem(NAME_STORAGE_KEY) ?? '');
+    } catch {
+      // 隐私模式下 localStorage 会抛错，那就当没存过
+    }
+  }, []);
+
   // 新消息进来滚到底
   useEffect(() => {
     const element = scrollRef.current;
@@ -106,6 +121,7 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
   const errorText = useMemo<Record<ChatErrorCode, string>>(
     () => ({
       rate_limited: labels.chatErrorTooFast,
+      busy: labels.chatErrorBusy,
       too_long: labels.chatErrorTooLong,
       empty: labels.chatError,
       model_failed: labels.chatError,
@@ -117,6 +133,8 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
     async (raw: string) => {
       const text = raw.trim();
       if (!text || sending) return;
+
+      const trimmedName = name.trim().slice(0, CHAT_NAME_MAX_LENGTH);
 
       setInput('');
       setError(null);
@@ -131,7 +149,7 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
             createdAt: new Date().toISOString(),
             role: 'visitor',
             content: text,
-            displayName: labels.you,
+            displayName: trimmedName || labels.you,
             locationLabel: null,
             avatarSeed: tempId,
             suggestedQuestions: [],
@@ -143,7 +161,7 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: text, locale }),
+          body: JSON.stringify({ content: text, locale, name: trimmedName }),
         });
         const data = await response.json();
 
@@ -155,9 +173,6 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
           return mergeMessages(withoutTemp, confirmed);
         });
 
-        if (Array.isArray(data.suggested) && data.suggested.length > 0) {
-          setSuggested(data.suggested);
-        }
         if (data.error) {
           setError(errorText[data.error as ChatErrorCode] ?? labels.chatError);
         }
@@ -169,7 +184,7 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
         setSending(false);
       }
     },
-    [errorText, labels, locale, sending]
+    [errorText, labels, locale, name, sending]
   );
 
   return (
@@ -257,29 +272,36 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
       </div>
 
       <div className="border-border mt-4 border-t pt-4">
+        {/*
+          模型每次回复都会附带三个「接下来可能想问的」，就摆在输入框正上方。
+          刻意**不加标题**：这几个词本身就是问题，一看就知道能点，
+          再加一行「还可以聊」只是多一道需要读的字。
+        */}
         {suggested.length > 0 ? (
-          <div className="mb-3">
-            <p className="kicker mb-2">{labels.chatSuggested}</p>
-            <div className="flex flex-wrap gap-1.5">
-              {suggested.map((question) => (
-                <button
-                  key={question}
-                  type="button"
-                  disabled={sending}
-                  onClick={() => void send(question)}
-                  className={cn(
-                    'chip',
-                    'hover:border-foreground/40 hover:text-foreground',
-                    'disabled:cursor-not-allowed disabled:opacity-50'
-                  )}
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {suggested.map((question) => (
+              <button
+                key={question}
+                type="button"
+                disabled={sending}
+                onClick={() => void send(question)}
+                className={cn(
+                  'chip',
+                  'hover:border-foreground/40 hover:text-foreground',
+                  'disabled:cursor-not-allowed disabled:opacity-50'
+                )}
+              >
+                {question}
+              </button>
+            ))}
           </div>
         ) : null}
 
+        {/*
+          名字与正文同一行：名字在左、正文占满剩余空间。
+          名字没有标签文案 —— 占位符本身就说清了这里是干什么的，
+          再补一句说明只会把这一行撑长。
+        */}
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -287,6 +309,27 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
           }}
           className="flex items-center gap-2"
         >
+          <input
+            name="visitor-name"
+            value={name}
+            onChange={(event) => {
+              const next = event.target.value;
+              setName(next);
+              try {
+                window.localStorage.setItem(NAME_STORAGE_KEY, next);
+              } catch {
+                // 隐私模式下写不进去就算了，不影响这次会话
+              }
+            }}
+            maxLength={CHAT_NAME_MAX_LENGTH}
+            placeholder={labels.chatNamePlaceholder}
+            aria-label={labels.chatNamePlaceholder}
+            className={cn(
+              'border-border bg-transparent placeholder:text-muted-foreground/70',
+              'focus:border-foreground/40 rounded-xs w-20 shrink-0 border px-2.5 py-2',
+              'text-[0.85rem] outline-none transition-colors sm:w-24'
+            )}
+          />
           <input
             name="message"
             value={input}
