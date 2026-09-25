@@ -52,7 +52,7 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 
 挂到 Vercel 之前先读这几条，否则很容易把数字搞脏：
 
-- **事件名是 `v3_page_view`，不是 world 站的 `page_view`。** 日聚合表 `page_view_daily_stats` 按 `(profile_id, stat_date)` 归并，两个站共用一个 profile，沿用同一个事件名会把 world 的流量混进底栏那个数字。读取走 `page_view_site_totals`（按事件名读原始事件流）。
+- **事件名与 world 站共用 `page_view`**，这是刻意的：底栏那个数字的含义是「这个站被看过多少次」，v3 是新站，从 0 起算等于把过去的访问量抹掉。共用之后数字接着 world 往下累加。代价是它统计的是两个域名合起来的量——这是作者要的口径，别「顺手修正」。
 - **只在正式环境计数。** 判断是服务端做的（`VERCEL_ENV === 'production'`），再作为 prop 传给客户端——客户端组件读 `process.env` 只会拿到 `undefined`，Next 只内联 `NEXT_PUBLIC_*`。
 - **IP 哈希只有一套实现**（`lib/analytics/hash.ts`），群聊的访客标识也用它。盐缺失时 `getIpSalt()` 直接抛错：回退到硬编码的盐等于把「不存原始 IP」变成一句空话。
 
