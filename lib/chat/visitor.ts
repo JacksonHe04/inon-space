@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import { headers } from 'next/headers';
 
+import { CN_PROVINCES } from '@/lib/chat/china-provinces';
+
 export interface VisitorIdentity {
   /** 匿名访客标识：IP 加盐哈希，只用来区分「是不是同一个人」，不存原始 IP */
   key: string;
@@ -39,15 +41,39 @@ export async function getVisitorIdentity(): Promise<VisitorIdentity> {
 
 function readLocation(requestHeaders: Headers): string | null {
   const countryCode = requestHeaders.get('x-vercel-ip-country');
+  const regionCode = requestHeaders.get('x-vercel-ip-country-region');
   const cityRaw = requestHeaders.get('x-vercel-ip-city');
 
   const country = countryCode ? regionName(countryCode) : null;
-  const city = cityRaw ? decodeSafe(cityRaw) : null;
+  const province = readProvince(countryCode, regionCode);
   // 已经是本地语言的城市名才值得展示
-  const localizedCity = city && /[^\x00-\x7F]/.test(city) ? city : null;
+  const city = readLocalizedCity(cityRaw);
 
-  if (country && localizedCity) return `${country}${localizedCity}`;
-  return country ?? localizedCity;
+  // 直辖市会返回「北京 + Beijing」这种省市同名的情况，去重一次
+  // 否则会读成「来自中国北京北京的访客」
+  const region =
+    province && city && province === city
+      ? province
+      : [province, city].filter(Boolean).join('') || null;
+
+  if (country && region) return `${country}${region}`;
+  return country ?? region;
+}
+
+/**
+ * 省份只在有中文对照表时才有意义 —— 目前只做了中国。
+ * 别的国家 Vercel 给的是州/省代码（`CA`、`BY`…），没有名称可用，
+ * 与其贴代码上去，不如只显示国家。
+ */
+function readProvince(countryCode: string | null, regionCode: string | null): string | null {
+  if (!countryCode || !regionCode || countryCode.toUpperCase() !== 'CN') return null;
+  return CN_PROVINCES[regionCode.toUpperCase()] ?? null;
+}
+
+function readLocalizedCity(raw: string | null): string | null {
+  if (!raw) return null;
+  const city = decodeSafe(raw);
+  return /[^\x00-\x7F]/.test(city) ? city : null;
 }
 
 let regionNames: Intl.DisplayNames | null = null;
