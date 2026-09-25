@@ -1,92 +1,175 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-html,
-body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  user-select: none;
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-link: var(--link);
+  /* 学者风格：正文一律衬线。--font-sans 与 --font-serif 同栈，避免某处漏用 font-serif 就变无衬线 */
+  --font-sans: var(--font-source-serif), Georgia, "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, "Times New Roman", serif;
+  --font-serif: var(--font-source-serif), Georgia, "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, "Times New Roman", serif;
+  --font-heading: var(--font-source-serif), Georgia, "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 3px;
+  --radius-3xl: 3px;
+  --radius-4xl: 4px;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  background-color: #000;
-  color: #fff;
+/* 浅色：纸与墨 */
+:root {
+  --background: oklch(0.994 0.003 85);
+  --foreground: oklch(0.235 0.011 60);
+  --card: oklch(0.997 0.002 85);
+  --card-foreground: oklch(0.235 0.011 60);
+  --popover: oklch(0.997 0.002 85);
+  --popover-foreground: oklch(0.235 0.011 60);
+  --primary: oklch(0.29 0.016 60);
+  --primary-foreground: oklch(0.99 0.003 85);
+  --secondary: oklch(0.965 0.004 85);
+  --secondary-foreground: oklch(0.29 0.016 60);
+  --muted: oklch(0.965 0.004 85);
+  --muted-foreground: oklch(0.505 0.012 60);
+  --accent: oklch(0.965 0.004 85);
+  --accent-foreground: oklch(0.29 0.016 60);
+  --destructive: oklch(0.55 0.19 27);
+  --border: oklch(0.892 0.006 80);
+  --input: oklch(0.892 0.006 80);
+  --ring: oklch(0.68 0.012 60);
+  /* 学术蓝：正文中的链接 */
+  --link: oklch(0.46 0.14 252);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.125rem;
+  --sidebar: oklch(0.98 0.003 85);
+  --sidebar-foreground: oklch(0.235 0.011 60);
+  --sidebar-primary: oklch(0.29 0.016 60);
+  --sidebar-primary-foreground: oklch(0.99 0.003 85);
+  --sidebar-accent: oklch(0.965 0.004 85);
+  --sidebar-accent-foreground: oklch(0.29 0.016 60);
+  --sidebar-border: oklch(0.892 0.006 80);
+  --sidebar-ring: oklch(0.68 0.012 60);
 }
 
-/* 鼠标指针锁定时隐藏 */
-.pointer-lock {
-  cursor: none;
+/* 深色：夜读 */
+.dark {
+  --background: oklch(0.191 0.006 70);
+  --foreground: oklch(0.898 0.008 85);
+  --card: oklch(0.222 0.006 70);
+  --card-foreground: oklch(0.898 0.008 85);
+  --popover: oklch(0.222 0.006 70);
+  --popover-foreground: oklch(0.898 0.008 85);
+  --primary: oklch(0.898 0.008 85);
+  --primary-foreground: oklch(0.222 0.006 70);
+  --secondary: oklch(0.256 0.006 70);
+  --secondary-foreground: oklch(0.898 0.008 85);
+  --muted: oklch(0.256 0.006 70);
+  --muted-foreground: oklch(0.672 0.009 80);
+  --accent: oklch(0.256 0.006 70);
+  --accent-foreground: oklch(0.898 0.008 85);
+  --destructive: oklch(0.66 0.17 25);
+  --border: oklch(1 0 0 / 13%);
+  --input: oklch(1 0 0 / 17%);
+  --ring: oklch(0.55 0.01 70);
+  --link: oklch(0.76 0.1 250);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.222 0.006 70);
+  --sidebar-foreground: oklch(0.898 0.008 85);
+  --sidebar-primary: oklch(0.898 0.008 85);
+  --sidebar-primary-foreground: oklch(0.222 0.006 70);
+  --sidebar-accent: oklch(0.256 0.006 70);
+  --sidebar-accent-foreground: oklch(0.898 0.008 85);
+  --sidebar-border: oklch(1 0 0 / 13%);
+  --sidebar-ring: oklch(0.55 0.01 70);
 }
 
-/* 禁用触摸设备的默认行为 */
-* {
-  touch-action: none;
-}
-
-/* Game container & UI overlay styles (migrated from chapter-i/index.vue) */
-#game-container {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-}
-
-.start-screen {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-.start-button {
-  padding: 15px 30px;
-  font-size: 1.2em;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.start-button:hover {
-  background-color: #45a049;
-}
-
-.lyric-display {
-  position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  font-size: 1.2em;
-  text-align: center;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-.fragment-counter {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 1.1em;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 20px);
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
+
+  html {
+    @apply font-serif;
+    /* 中英混排的字距与连字 */
+    font-feature-settings: "kern" 1, "liga" 1;
+    letter-spacing: 0.003em;
   }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 学术站点默认链接样式：正文里的链接是蓝的、带下划线 */
+  a {
+    @apply text-link underline decoration-link/35 underline-offset-[3px];
+    transition: text-decoration-color 150ms ease;
+  }
+
+  a:hover {
+    @apply decoration-link;
+  }
+
+  /* 小标题：小型大写字母的观感 */
+  .kicker {
+    @apply text-muted-foreground text-[0.72rem] font-medium tracking-[0.14em] uppercase;
+  }
+}
+
+/* 群聊头像：颜色由 --avatar-hue 决定，明暗两套各自调过亮度，
+   不是简单反色 —— 深色下要提亮、降饱和，否则整片头像会糊在一起。 */
+.avatar {
+  background-color: oklch(0.93 0.055 var(--avatar-hue, 200));
+  color: oklch(0.47 0.13 var(--avatar-hue, 200));
+}
+
+.dark .avatar {
+  background-color: oklch(0.3 0.05 var(--avatar-hue, 200));
+  color: oklch(0.79 0.12 var(--avatar-hue, 200));
 }
