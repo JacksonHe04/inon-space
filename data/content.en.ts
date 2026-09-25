@@ -47,7 +47,8 @@ export const contentEn = {
     preferences: 'Preferences',
     beliefs: 'Beliefs',
     links: 'Links',
-    linkBy: 'made for me by my friend {name}',
+    // {name} links to the author, {site} is this link's own label, pointing at the site
+    linkBy: 'my friend {name} made me this {site}',
 
     gallery: 'Gallery',
     galleryAlbums: 'Albums',
@@ -61,6 +62,7 @@ export const contentEn = {
 
     close: 'Close',
     themeToggle: 'Toggle theme',
+    switchLanguage: 'Switch language',
   },
 
   identity: {
@@ -387,9 +389,11 @@ export const contentEn = {
       { id: 'personal-vision', title: 'Personal vision', items: ['Make a lot of money', 'Lie flat in a big flat'] },
     ],
 
+    // A link with `by` renders as one sentence (labels.linkBy), so the label reads
+    // mid-sentence here — hence the lowercase
     links: [
       {
-        label: 'Quote site',
+        label: 'quote site',
         href: 'https://yvette-wanan.github.io/jackson-quotes',
         by: { name: 'Jingyi Wan', href: 'https://github.com/yvette-wanan' },
       },
@@ -404,6 +408,7 @@ export const contentEn = {
   ],
 
   world: {
-    href: 'https://world.inon.space',
+    // The subdomain needs the slug — its root is a different entry point (the empty slug)
+    href: 'https://world.inon.space/JacksonHe04',
   },
 } satisfies Content;

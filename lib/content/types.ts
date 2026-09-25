@@ -284,6 +284,8 @@ export interface Labels {
   close: string;
   /** 主题切换按钮的无障碍名称。刻意与当前主题无关，避免两侧渲染出不同属性 */
   themeToggle: string;
+  /** 语言切换按钮的无障碍名称。同上，描述动作而不是当前语言 */
+  switchLanguage: string;
 }
 
 /** 服务端只回错误码，文案由客户端从 labels 里取 —— 保证多语言下也正确 */

@@ -1,11 +1,13 @@
+import { Fragment } from 'react';
 import type { Metadata } from 'next';
 
 import { DescriptionList } from '@/components/description-list';
 import { EducationList } from '@/components/life/education-list';
 import { GrowthList } from '@/components/life/growth-list';
 import { Section } from '@/components/section';
+import type { ExternalLink } from '@/lib/content/types';
 import { getRequestContent } from '@/lib/content/server';
-import { splitTemplate } from '@/lib/template';
+import { parseTemplate } from '@/lib/template';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { content } = await getRequestContent();
@@ -62,10 +64,13 @@ export default async function LifePage() {
           <ul className="space-y-1.5">
             {life.links.map((link) => (
               <li key={link.href} className="text-[0.88rem]">
-                <a href={link.href} target="_blank" rel="noreferrer">
-                  {link.label}
-                </a>
-                {link.by ? <Credit by={link.by} template={labels.linkBy} /> : null}
+                {link.by ? (
+                  <Credit link={link} template={labels.linkBy} />
+                ) : (
+                  <a href={link.href} target="_blank" rel="noreferrer">
+                    {link.label}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
@@ -76,25 +81,32 @@ export default async function LifePage() {
 }
 
 /**
- * 别人做的东西要署上是谁做的。文案是 `由 {name} 制作` 这样的模板，
- * 名字本身是个链接 —— 所以不能先把整句拼成字符串。
+ * 别人做的东西要署上是谁做的。
+ *
+ * 整行就是 labels.linkBy 那一句话（形如 `我的朋友 {name} 给我做的{site}`），
+ * 两个占位符都是链接：{name} 指向作者主页，{site} 指向站点本身。
+ * 所以这里不再单独渲染 label —— 它已经被填进句子里了。
  */
-function Credit({
-  by,
-  template,
-}: {
-  by: { name: string; href: string };
-  template: string;
-}) {
-  const [before, after] = splitTemplate(template, 'name');
+function Credit({ link, template }: { link: ExternalLink; template: string }) {
+  const parts = parseTemplate(template, ['name', 'site']);
 
   return (
-    <span className="text-muted-foreground ml-2 text-[0.8rem]">
-      {before}
-      <a href={by.href} target="_blank" rel="noreferrer">
-        {by.name}
-      </a>
-      {after}
-    </span>
+    <>
+      {parts.map((part, index) => {
+        if (part.kind === 'text') return <Fragment key={index}>{part.text}</Fragment>;
+        if (part.key === 'name' && link.by) {
+          return (
+            <a key={index} href={link.by.href} target="_blank" rel="noreferrer">
+              {link.by.name}
+            </a>
+          );
+        }
+        return (
+          <a key={index} href={link.href} target="_blank" rel="noreferrer">
+            {link.label}
+          </a>
+        );
+      })}
+    </>
   );
 }

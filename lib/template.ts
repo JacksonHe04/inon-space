@@ -14,15 +14,36 @@ export function fillTemplate(
   );
 }
 
+/** 模板里的一段：要么是纯文本，要么是一个留给调用方填节点的占位符 */
+export type TemplatePart = { kind: 'text'; text: string } | { kind: 'slot'; key: string };
+
 /**
- * 把模板从 `{key}` 处切成两半，中间留给调用方塞一个 React 节点 ——
- * 链接没法先拼成字符串再插进去。
+ * 把模板切成「文本 / 占位符」交替的片段。
  *
- * 模板里没有占位符时返回 `[template, '']`，调用方不用额外判空。
+ * 链接没法先拼成字符串再插进去，所以只能切开、由调用方在占位符的位置塞 React 节点。
+ * 支持**多个**占位符是刻意的：语录那行里「万竞屹」和「语录网站」都是链接，
+ * 一个模板只能插一个节点就写不出那句话。
+ *
+ * 用不到的 key 直接留在文本里，调用方一眼能看出模板和实际传的对不上。
  */
-export function splitTemplate(template: string, key: string): [string, string] {
-  const token = `{${key}}`;
-  const at = template.indexOf(token);
-  if (at === -1) return [template, ''];
-  return [template.slice(0, at), template.slice(at + token.length)];
+export function parseTemplate(template: string, keys: readonly string[]): TemplatePart[] {
+  if (keys.length === 0) return [{ kind: 'text', text: template }];
+
+  const pattern = new RegExp(`\\{(${keys.map(escapeRegExp).join('|')})\\}`, 'g');
+  const parts: TemplatePart[] = [];
+  let cursor = 0;
+
+  for (const match of template.matchAll(pattern)) {
+    const at = match.index;
+    if (at > cursor) parts.push({ kind: 'text', text: template.slice(cursor, at) });
+    parts.push({ kind: 'slot', key: match[1] });
+    cursor = at + match[0].length;
+  }
+
+  if (cursor < template.length) parts.push({ kind: 'text', text: template.slice(cursor) });
+  return parts;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

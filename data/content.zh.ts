@@ -47,7 +47,8 @@ export const contentZh = {
     preferences: '偏好',
     beliefs: '观念',
     links: '链接',
-    linkBy: '我的朋友 {name} 给我做的语录',
+    // {name} 链到作者主页，{site} 就是这条链接自己的文字，链到站点本身
+    linkBy: '我的朋友 {name} 给我做的{site}',
 
     // GALLERY 二级 tab
     gallery: '收藏',
@@ -63,6 +64,7 @@ export const contentZh = {
 
     close: '关闭',
     themeToggle: '切换主题',
+    switchLanguage: '切换语言',
   },
 
   identity: {
@@ -374,6 +376,8 @@ export const contentZh = {
       { id: 'personal-vision', title: '个人愿景', items: ['赚大钱', '躺大平'] },
     ],
 
+    // 带 by 的链接整行会渲染成 labels.linkBy 那句话：label 作为 {site} 填进去，
+    // by.name 作为 {name} —— 两个都是链接，分别指向站点本身和作者主页
     links: [
       {
         label: '语录网站',
@@ -391,6 +395,7 @@ export const contentZh = {
   ],
 
   world: {
-    href: 'https://world.inon.space',
+    // 二级域名后面要带 slug —— 根路径走的是另一个入口（空的 slug），指向明确的路由更稳
+    href: 'https://world.inon.space/JacksonHe04',
   },
 } satisfies Content;
