@@ -65,7 +65,12 @@ export default async function LifePage() {
             {life.links.map((link) => (
               <li key={link.href} className="text-[0.88rem]">
                 {link.by ? (
-                  <Credit link={link} template={labels.linkBy} />
+                  <Credit
+                    link={link}
+                    template={
+                      link.byTemplate === 'owner' ? labels.linkByOwner : labels.linkByMade
+                    }
+                  />
                 ) : (
                   <a href={link.href} target="_blank" rel="noreferrer">
                     {link.label}
@@ -83,7 +88,7 @@ export default async function LifePage() {
 /**
  * 别人做的东西要署上是谁做的。
  *
- * 整行就是 labels.linkBy 那一句话（形如 `我的朋友 {name} 给我做的{site}`），
+ * 整行就是 labels.linkByMade / linkByOwner 那一句话（形如 `我的朋友 {name} 给我做的{site}`），
  * 两个占位符都是链接：{name} 指向作者主页，{site} 指向站点本身。
  * 所以这里不再单独渲染 label —— 它已经被填进句子里了。
  */

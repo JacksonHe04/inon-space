@@ -48,7 +48,8 @@ export const contentEn = {
     beliefs: 'Beliefs',
     links: 'Links',
     // {name} links to the author, {site} is this link's own label, pointing at the site
-    linkBy: 'my friend {name} made me this {site}',
+    linkByMade: 'my friend {name} made me this {site}',
+    linkByOwner: "my friend {name}'s {site}",
 
     gallery: 'Gallery',
     galleryAlbums: 'Albums',
@@ -59,6 +60,7 @@ export const contentEn = {
 
     footerRights: 'All rights reserved',
     footerBuiltWith: 'Built on these open-source projects',
+    footerVisits: '{visitors} visitors · {views} views',
 
     close: 'Close',
     themeToggle: 'Toggle theme',
@@ -104,7 +106,7 @@ export const contentEn = {
       kind: 'work',
       org: 'Sand.ai',
       branch: 'VidMuse',
-      role: 'Video Agent Product Intern',
+      role: 'Product',
       period: '2026.07 – 2026.09',
       location: 'Beijing',
       description:
@@ -116,7 +118,7 @@ export const contentEn = {
       kind: 'work',
       org: 'Meituan',
       branch: 'Fundamental Technology Department',
-      role: 'Product Manager',
+      role: 'Product',
       period: '2025.12 – 2026.07',
       location: 'Shanghai',
       description:
@@ -128,7 +130,7 @@ export const contentEn = {
       kind: 'work',
       org: 'Z.ai',
       branch: 'Product Solutions Center',
-      role: 'LLM Product Intern',
+      role: 'Product',
       period: '2025.08 – 2025.11',
       location: 'Beijing',
       description: 'Observability and model routing for an enterprise MaaS platform',
@@ -262,7 +264,7 @@ export const contentEn = {
         city: 'Shanghai',
         period: '2025.12 – 2026.06',
         description:
-          'A long stretch drifting in Shanghai — between the plane trees and the coffee of Yangpu, slowly becoming an island unto myself.',
+          'Ningguo Road, Changyang Campus, Huliandi — in Yangpu.',
       },
       {
         city: 'Beijing',
@@ -389,13 +391,19 @@ export const contentEn = {
       { id: 'personal-vision', title: 'Personal vision', items: ['Make a lot of money', 'Lie flat in a big flat'] },
     ],
 
-    // A link with `by` renders as one sentence (labels.linkBy), so the label reads
-    // mid-sentence here — hence the lowercase
+    // A link with `by` renders as one sentence (labels.linkByMade / linkByOwner), so the
+    // label reads mid-sentence here — hence the lowercase
     links: [
       {
         label: 'quote site',
         href: 'https://yvette-wanan.github.io/jackson-quotes',
         by: { name: 'Jingyi Wan', href: 'https://github.com/yvette-wanan' },
+      },
+      {
+        label: 'website',
+        href: 'https://xiaobaozi.cn',
+        by: { name: 'Ziye Tang', href: 'https://xiaobaozi.cn' },
+        byTemplate: 'owner',
       },
     ],
   },
@@ -409,6 +417,6 @@ export const contentEn = {
 
   world: {
     // The subdomain needs the slug — its root is a different entry point (the empty slug)
-    href: 'https://world.inon.space/JacksonHe04',
+    href: 'https://world.inon.space/JacksonHe04?mode=world',
   },
 } satisfies Content;

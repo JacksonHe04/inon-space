@@ -48,7 +48,8 @@ export const contentZh = {
     beliefs: '观念',
     links: '链接',
     // {name} 链到作者主页，{site} 就是这条链接自己的文字，链到站点本身
-    linkBy: '我的朋友 {name} 给我做的{site}',
+    linkByMade: '我的朋友 {name} 给我做的{site}',
+    linkByOwner: '我的朋友 {name} 的{site}',
 
     // GALLERY 二级 tab
     gallery: '收藏',
@@ -61,6 +62,7 @@ export const contentZh = {
     // 底栏
     footerRights: '保留所有权利',
     footerBuiltWith: '基于以下开源项目构建',
+    footerVisits: '已有 {visitors} 位访客 · {views} 次浏览',
 
     close: '关闭',
     themeToggle: '切换主题',
@@ -106,7 +108,7 @@ export const contentZh = {
       kind: 'work',
       org: 'Sand.ai',
       branch: 'VidMuse',
-      role: 'Video Agent 产品实习生',
+      role: '产品',
       period: '2026.07 – 2026.09',
       location: '北京',
       description:
@@ -118,7 +120,7 @@ export const contentZh = {
       kind: 'work',
       org: '美团',
       branch: '基础技术部',
-      role: '产品经理',
+      role: '产品',
       period: '2025.12 – 2026.07',
       location: '上海',
       description: '企业级 Agent 评估体系 0-1 搭建，Agent Skills 全链路落地，工单 Agent 能力调优',
@@ -129,7 +131,7 @@ export const contentZh = {
       kind: 'work',
       org: '智谱',
       branch: '产品解决方案中心',
-      role: '大模型产品实习生',
+      role: '产品',
       period: '2025.08 – 2025.11',
       location: '北京',
       description: '企业级 MaaS 平台可观测与模型路由',
@@ -259,7 +261,7 @@ export const contentZh = {
       {
         city: '上海',
         period: '2025.12 – 2026.06',
-        description: '漫长的沪漂——在杨浦的梧桐与咖啡之间，慢慢把自己活成了一座岛屿。',
+        description: '杨浦区宁国路、长阳创谷、互联宝地。',
       },
       {
         city: '北京',
@@ -376,13 +378,19 @@ export const contentZh = {
       { id: 'personal-vision', title: '个人愿景', items: ['赚大钱', '躺大平'] },
     ],
 
-    // 带 by 的链接整行会渲染成 labels.linkBy 那句话：label 作为 {site} 填进去，
-    // by.name 作为 {name} —— 两个都是链接，分别指向站点本身和作者主页
+    // 带 by 的链接整行会渲染成 labels.linkByMade / linkByOwner 那句话：label 作为 {site}
+    // 填进去，by.name 作为 {name} —— 两个都是链接，分别指向站点本身和作者主页
     links: [
       {
         label: '语录网站',
         href: 'https://yvette-wanan.github.io/jackson-quotes',
         by: { name: '万竞屹', href: 'https://github.com/yvette-wanan' },
+      },
+      {
+        label: '网站',
+        href: 'https://xiaobaozi.cn',
+        by: { name: '唐子叶', href: 'https://xiaobaozi.cn' },
+        byTemplate: 'owner',
       },
     ],
   },
@@ -396,6 +404,6 @@ export const contentZh = {
 
   world: {
     // 二级域名后面要带 slug —— 根路径走的是另一个入口（空的 slug），指向明确的路由更稳
-    href: 'https://world.inon.space/JacksonHe04',
+    href: 'https://world.inon.space/JacksonHe04?mode=world',
   },
 } satisfies Content;

@@ -159,6 +159,12 @@ export interface ExternalLink {
   href: string;
   /** 别人做的东西要署上是谁做的：名字会链到对方主页 */
   by?: { name: string; href: string };
+  /**
+   * 署名用哪一句 —— 关系是链接自身的属性，不是界面的：同一个列表里
+   * 「朋友给我做的语录站」和「朋友的网站」说法不一样。
+   * 默认 `made`。
+   */
+  byTemplate?: 'made' | 'owner';
 }
 
 export interface Life {
@@ -259,8 +265,13 @@ export interface Labels {
   preferences: string;
   beliefs: string;
   links: string;
-  /** 外部链接的署名模板，`{name}` 会替换成指向作者主页的链接，如「由 {name} 制作」 */
-  linkBy: string;
+  /**
+   * 外部链接的署名模板：别人**给我做的**东西。
+   * `{name}` 换成作者（链到主页），`{site}` 换成链接自己的文字（链到站点）。
+   */
+  linkByMade: string;
+  /** 外部链接的署名模板：**是别人的站**。同样支持 `{name}` 与 `{site}` */
+  linkByOwner: string;
 
   /* GALLERY · 二级 tab */
   gallery: string;
@@ -279,6 +290,8 @@ export interface Labels {
   footerRights: string;
   /** 开源技术栈的引导语，如「基于以下开源项目构建」 */
   footerBuiltWith: string;
+  /** 访问统计，`{visitors}` 与 `{views}` 会被替换成数字 */
+  footerVisits: string;
 
   /* 通用 */
   close: string;
