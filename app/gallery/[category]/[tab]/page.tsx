@@ -55,7 +55,7 @@ export default async function GalleryTabPage({ params }: GalleryTabPageProps) {
   const visible = items.filter((item) => item.kind === activeTab.kind);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8 lg:py-16">
+    <div className="mx-auto max-w-3xl px-6 pt-8 pb-12 sm:px-8 lg:pt-10 lg:pb-16">
       {/* 分类导航自己带标题：选中的分类就按标题渲染，这里不再单独占一行 */}
       <GalleryCategoryNav categories={content.gallery} current={category} />
 

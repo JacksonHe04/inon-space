@@ -7,7 +7,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { LocaleSwitch } from '@/components/locale-switch';
 import { ThemeToggle } from '@/components/theme-toggle';
 import type { Labels, Locale, Nav } from '@/lib/content/types';
-import { NAV_ORDER, ROUTES } from '@/lib/i18n';
+import { NAV_ORDER, ROUTES, type RouteKey } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface SiteHeaderProps {
@@ -19,6 +19,18 @@ interface SiteHeaderProps {
 
 const navItemClass =
   'text-[0.72rem] tracking-[0.14em] uppercase no-underline transition-colors hover:no-underline';
+
+/**
+ * 首页不预取，其余站内页都预取。
+ *
+ * 本站每个路由都是动态的（语言存在 cookie 里），Next 对动态路由**默认不预取、也不进客户端
+ * 缓存** —— 实测每点一次 tab 都要等 ~400ms 服务端往返，换来的是整块内容突兀地被替换。
+ * 打开 prefetch 后，链接一进视口就把 RSC 载荷取好，点击是瞬时的。
+ *
+ * 首页不能这么做：它带着群聊的首屏快照，缓存下来的话，回访时会「回放」成旧快照，
+ * 而 Realtime 只推新增消息、不补历史，中间那几条就永远看不到了。宁可让它慢一点，也要它是对的。
+ */
+const FRESH_ROUTES: readonly RouteKey[] = ['home'];
 
 export function SiteHeader({ locale, labels, nav, worldHref }: SiteHeaderProps) {
   const pathname = usePathname();
@@ -43,6 +55,7 @@ export function SiteHeader({ locale, labels, nav, worldHref }: SiteHeaderProps) 
               <Link
                 key={key}
                 href={href}
+                prefetch={!FRESH_ROUTES.includes(key)}
                 className={cn(
                   navItemClass,
                   'shrink-0',

@@ -27,8 +27,9 @@ export function GalleryTabNav({
         <Link
           key={tab.id}
           href={`${ROUTES.gallery}/${category}/${tab.id}`}
+          prefetch
           className={cn(
-            'text-[0.85rem] no-underline transition-colors hover:no-underline',
+            'text-[0.75rem] no-underline transition-colors hover:no-underline',
             tab.id === current
               ? 'text-foreground font-medium underline decoration-1 underline-offset-4'
               : 'text-muted-foreground hover:text-foreground'
