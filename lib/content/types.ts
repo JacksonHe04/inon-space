@@ -288,16 +288,6 @@ export interface Labels {
   galleryCreators: string;
   galleryEmpty: string;
 
-  /* 底栏 */
-  /** 版权声明，跟在「© 年份 姓名」之后 */
-  footerRights: string;
-  /** 开源技术栈的引导语，如「基于以下开源项目构建」 */
-  footerBuiltWith: string;
-  /** AI 协作徽章的引导语。`{models}` 槽位会放两枚协作徽章，如「与 {models} 协作构建」 */
-  footerCoBuilt: string;
-  /** 访问统计，`{visitors}` 与 `{views}` 会被替换成数字 */
-  footerVisits: string;
-
   /* 通用 */
   close: string;
   /** 主题切换按钮的无障碍名称。刻意与当前主题无关，避免两侧渲染出不同属性 */

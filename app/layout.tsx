@@ -141,7 +141,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             worldHref={content.world.href}
           />
           <main className="flex-1">{children}</main>
-          <SiteFooter name={content.identity.name} labels={content.labels} stats={stats} />
+          <SiteFooter stats={stats} />
           <PageViewTracker enabled={trackViews} />
         </Providers>
       </body>

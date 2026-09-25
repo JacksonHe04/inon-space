@@ -7,30 +7,80 @@
 export interface TechItem {
   name: string;
   href: string;
+  /** logo 路径（public/logos/tech/） */
+  src: string;
+  /** 深色模式变体；不传则明暗共用 src（配合 monochrome） */
+  darkSrc?: string;
+  /** 单色渲染（mask + currentColor，明暗自动适配）。品牌色 logo 别开 */
+  monochrome?: boolean;
+  /** logo 的显示尺寸。各 logo 宽高比不同，逐项给 */
+  className: string;
 }
 
 /**
- * 底栏列出的开源技术栈。
+ * 底栏第一行列出的开源技术栈 —— 一排 logo。
  *
  * 两条标准：只列**真正在用**的（装了但没引用的依赖不要写上去，那是不实陈述），
  * 并且只列**框架与平台这一层**。语言与 CSS 框架是任何现代前端的基线，
- * 写上去不提供信息量，反而把真正能说明「这个站由什么搭起来」的几项稀释掉。
+ * 写上去不提供信息量，反而把真正能说明「这个站由什么搭起来」的几项稀释掉
+ * （OpenCode 与 Go 在第二行，作为协作署名）。
  */
 export const TECH_STACK: readonly TechItem[] = [
-  { name: 'Next.js', href: 'https://nextjs.org' },
-  { name: 'Supabase', href: 'https://supabase.com' },
-  { name: 'Vercel AI SDK', href: 'https://ai-sdk.dev' },
-  { name: 'OpenCode', href: 'https://opencode.ai' },
+  {
+    name: 'Vercel',
+    href: 'https://vercel.com',
+    src: '/logos/tech/vercel.svg',
+    // 白色填充，浅色背景下只能走 mask 染成文字色
+    monochrome: true,
+    className: 'h-3 w-3',
+  },
+  {
+    name: 'Next.js',
+    href: 'https://nextjs.org',
+    src: '/logos/tech/next.svg',
+    // 黑色填充，同理走 mask
+    monochrome: true,
+    className: 'h-3 w-[3.7rem]',
+  },
+  {
+    name: 'Supabase',
+    href: 'https://supabase.com',
+    src: '/logos/tech/supabase-logo-wordmark--light.svg',
+    darkSrc: '/logos/tech/supabase-logo-wordmark--dark.svg',
+    // wordmark 里文字只占 ~40% 高（闪电占满高），容器要比同行 logo 高一档文字才不显小
+    className: 'h-4 w-auto',
+  },
+  {
+    name: 'Vercel AI SDK',
+    href: 'https://ai-sdk.dev',
+    src: '/logos/tech/ai-sdk-light.svg',
+    darkSrc: '/logos/tech/ai-sdk-dark.svg',
+    className: 'h-3 w-auto',
+  },
 ];
-
-/** 底栏那两个 logo：表达「本站构建在这两者之上」 */
-export const BUILT_ON = [
-  { name: 'Vercel', src: '/vercel.svg', href: 'https://vercel.com' },
-  { name: 'Next.js', src: '/next.svg', href: 'https://nextjs.org' },
-] as const;
 
 /** 项目卡片末尾「更多」的去处 */
 export const GITHUB_REPOS_HREF = 'https://github.com/JacksonHe04?tab=repositories';
+
+/** 作者的 GitHub 主页 —— 底栏署名链到这里 */
+export const GITHUB_PROFILE_HREF = 'https://github.com/JacksonHe04';
+
+/** 底栏署名用的名字：GitHub 用户名，比真名更像「这是谁的站」的账号入口 */
+export const GITHUB_PROFILE_NAME = 'JacksonHe04';
+
+/**
+ * 底栏文案 —— **刻意固定英文，不随站点语言变**。
+ *
+ * 底栏是「署名 + 归属」性质的信息：技术名词、版权句在哪种语言下都长一个样，
+ * 接着站点语言翻成中文反而违和。所以不进 labels（那才是随语言的地方），
+ * 放在这里与其它中英共用的站点元信息作伴。`{models}` 是协作徽章的槽位。
+ */
+export const FOOTER = {
+  builtWith: 'Built on these open-source projects',
+  coBuiltWith: 'Built in collaboration with {models}',
+  rights: 'All rights reserved',
+  visits: '{visitors} visitors · {views} views',
+} as const;
 
 /**
  * 站点自己的地址。

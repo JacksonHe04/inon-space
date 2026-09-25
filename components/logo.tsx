@@ -2,6 +2,8 @@ import { cn } from '@/lib/utils';
 
 interface LogoProps {
   src: string;
+  /** 深色模式下的变体；不传则明暗共用 src。与 monochrome 二选一 */
+  darkSrc?: string;
   /** 无障碍名称；也用作图片的 alt */
   alt: string;
   /**
@@ -21,9 +23,12 @@ interface LogoProps {
  * 单色那批必须走 mask 而不是 `<img>`：SVG 里的 `currentColor` 在 `<img>` 里
  * 解析不到外层主题，会一律渲染成黑色 —— 深色模式下整排图标直接消失。
  *
+ * 提供了明暗两套资源（darkSrc）的走双 `<img>`，用 dark: 变体切换 ——
+ * 主题是 class 驱动的（next-themes），`prefers-color-scheme` 的 `<picture>` 跟不上手动切换。
+ *
  * 尺寸一律由 className 给（h-* / w-*），这里不预设，保持调用方说了算。
  */
-export function Logo({ src, alt, monochrome, className }: LogoProps) {
+export function Logo({ src, darkSrc, alt, monochrome, className }: LogoProps) {
   if (monochrome) {
     const mask = `url("${src}")`;
     return (
@@ -42,6 +47,23 @@ export function Logo({ src, alt, monochrome, className }: LogoProps) {
         }}
         className={cn('inline-block shrink-0 bg-current', className)}
       />
+    );
+  }
+
+  if (darkSrc) {
+    return (
+      <span className="inline-flex shrink-0">
+        {/* eslint-disable-next-line @next/next/no-img-element -- public/ 下的本地 SVG，不需要 next/image */}
+        <img src={src} alt={alt} loading="lazy" className={cn('object-contain dark:hidden', className)} />
+        {/* eslint-disable-next-line @next/next/no-img-element -- public/ 下的本地 SVG，不需要 next/image */}
+        <img
+          src={darkSrc}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          className={cn('hidden object-contain dark:block', className)}
+        />
+      </span>
     );
   }
 
