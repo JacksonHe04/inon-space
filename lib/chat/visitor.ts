@@ -1,6 +1,6 @@
-import { createHash } from 'node:crypto';
 import { headers } from 'next/headers';
 
+import { extractClientIp, getIpSalt, hashIp } from '@/lib/analytics/hash';
 import { CN_PROVINCES } from '@/lib/chat/china-provinces';
 
 export interface VisitorIdentity {
@@ -22,12 +22,13 @@ export interface VisitorIdentity {
 export async function getVisitorIdentity(): Promise<VisitorIdentity> {
   const requestHeaders = await headers();
 
-  const forwarded = requestHeaders.get('x-forwarded-for');
-  const ip =
-    forwarded?.split(',')[0]?.trim() || requestHeaders.get('x-real-ip') || 'local-unknown';
-
-  const salt = process.env.ANALYTICS_IP_SALT ?? 'inon-v3-chat';
-  const key = createHash('sha256').update(`${salt}:${ip}`).digest('hex').slice(0, 16);
+  /*
+   * 与访问统计共用同一套哈希（见 lib/analytics/hash.ts）——「不存原始 IP」这件事
+   * 不该有两套口径。盐缺失时 getIpSalt() 会抛错，不复用那个公开的兜底值。
+   * 本地开发没有这些头，退回一个固定串，保证节流键仍然稳定。
+   */
+  const ip = extractClientIp(requestHeaders) ?? 'local-unknown';
+  const key = hashIp(ip, getIpSalt()).slice(0, 16);
 
   const locationLabel = readLocation(requestHeaders);
 

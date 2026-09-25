@@ -30,3 +30,21 @@ export const BUILT_ON = [
 
 /** 项目卡片末尾「更多」的去处 */
 export const GITHUB_REPOS_HREF = 'https://github.com/JacksonHe04?tab=repositories';
+
+/**
+ * 站点归属的 profile。
+ *
+ * v3 与 world.inon.space 共用同一个 Supabase，也共用同一个 profile —— 访问统计、
+ * 收藏条目都挂在这个 id 上。写成常量而不是环境变量：它不是密钥，
+ * 而且换掉它意味着换成另一个人的站点，那属于改代码而不是改配置。
+ */
+export const SITE_PROFILE_ID = '2a9d3a63-41a4-4373-a3dd-e6defd16370e';
+
+/**
+ * v3 自己的访问事件名。
+ *
+ * 不能沿用 world 站的 `page_view`：那张日聚合表按 (profile_id, stat_date) 归并，
+ * 两个站都会写进同一行，底栏那个数字就会掺进 world 的流量。
+ * 用独立事件名之后，v3 的事件只进事件流、不进聚合表，读取走 page_view_site_totals。
+ */
+export const SITE_VIEW_EVENT = 'v3_page_view';

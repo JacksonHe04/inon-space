@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import { Geist_Mono, Noto_Serif_SC, Source_Serif_4 } from 'next/font/google';
 
+import { PageViewTracker } from '@/components/analytics/page-view-tracker';
 import { Providers } from '@/components/providers';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { getSiteViewTotals } from '@/lib/analytics/queries';
 import { getRequestContent } from '@/lib/content/server';
 import { htmlLang } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -50,8 +52,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // 语言来自 cookie，所以 html lang、顶栏、页脚都在服务端一次渲染好
-  const { locale, content } = await getRequestContent();
+  // 语言来自 cookie，所以 html lang、顶栏、页脚、访问统计都在服务端一次渲染好
+  const [{ locale, content }, stats] = await Promise.all([getRequestContent(), getSiteViewTotals()]);
+
+  /*
+   * 只在正式环境计数。本地开发与 preview 部署也是自己在访问，
+   * 记进去会把底栏那个数字灌成假的。VERCEL_ENV 是 Vercel 注入的服务端变量，
+   * 所以判断在服务端做完再告诉客户端（见 PageViewTracker 的注释）。
+   */
+  const trackViews = process.env.VERCEL_ENV === 'production';
 
   return (
     <html
@@ -73,7 +82,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             worldHref={content.world.href}
           />
           <main className="flex-1">{children}</main>
-          <SiteFooter name={content.identity.name} labels={content.labels} />
+          <SiteFooter name={content.identity.name} labels={content.labels} stats={stats} />
+          <PageViewTracker enabled={trackViews} />
         </Providers>
       </body>
     </html>

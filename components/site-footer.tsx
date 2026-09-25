@@ -1,10 +1,20 @@
 import { Fragment } from 'react';
 
 import { Logo } from '@/components/logo';
+import type { SiteViewTotals } from '@/lib/analytics/queries';
 import type { Labels } from '@/lib/content/types';
 import { BUILT_ON, TECH_STACK } from '@/lib/site-meta';
+import { fillTemplate } from '@/lib/template';
 
-export function SiteFooter({ name, labels }: { name: string; labels: Labels }) {
+export function SiteFooter({
+  name,
+  labels,
+  stats,
+}: {
+  name: string;
+  labels: Labels;
+  stats: SiteViewTotals;
+}) {
   return (
     <footer className="border-border mt-auto border-t">
       <div className="mx-auto max-w-6xl space-y-3 px-6 py-8 sm:px-8">
@@ -47,6 +57,13 @@ export function SiteFooter({ name, labels }: { name: string; labels: Labels }) {
 
         <p className="text-muted-foreground text-xs">
           © {new Date().getFullYear()} {name} · {labels.footerRights}
+          {/* 一条都还没记到时就不显示，免得刚上线就挂着「0 位访客」 */}
+          {stats.pv > 0 ? (
+            <>
+              {' · '}
+              {fillTemplate(labels.footerVisits, { visitors: stats.uv, views: stats.pv })}
+            </>
+          ) : null}
         </p>
       </div>
     </footer>
