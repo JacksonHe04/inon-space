@@ -227,6 +227,15 @@ export interface Labels {
   chatEmpty: string;
   chatPlaceholder: string;
   chatSend: string;
+  /**
+   * AI 在群聊里显示的名字。
+   *
+   * 数据库里存的那一份是固定的（`ASSISTANT_NAME`）—— 群聊是所有人共用的一个房间，
+   * 同一条消息对谁都必须是同一个身份。这里只管**怎么显示**，所以可以随语言变。
+   */
+  assistantName: string;
+  /** 访客自己那条乐观消息的署名，等服务器返回真实身份前的占位 */
+  you: string;
   chatSending: string;
   chatSuggested: string;
   /** 消息条数角标，`{n}` 会被替换成数字，如「{n} 条」 */

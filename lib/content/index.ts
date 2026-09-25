@@ -1,3 +1,4 @@
+import { contentEn } from '@/data/content.en';
 import { contentZh } from '@/data/content.zh';
 import type { Content, Locale } from '@/lib/content/types';
 import { DEFAULT_LOCALE } from '@/lib/i18n';
@@ -11,6 +12,7 @@ import { DEFAULT_LOCALE } from '@/lib/i18n';
  */
 const CONTENT: Partial<Record<Locale, Content>> = {
   zh: contentZh,
+  en: contentEn,
 };
 
 export function getContent(locale: Locale = DEFAULT_LOCALE): Content {

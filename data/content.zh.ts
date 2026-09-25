@@ -25,6 +25,8 @@ export const contentZh = {
     chatEmpty: '还没有人说过话。第一个开口的会是你吗？',
     chatPlaceholder: '说点什么…',
     chatSend: '发送',
+    assistantName: '小缨缨',
+    you: '你',
     chatSending: '小缨缨正在想…',
     chatSuggested: '还可以聊',
     chatCount: '{n} 条',
@@ -33,7 +35,7 @@ export const contentZh = {
     chatErrorTooLong: '一条消息最多 500 个字。',
 
     // HOME · 项目区末尾那张通向 GitHub 的卡片
-    projectsMore: '更多项目',
+    projectsMore: '更多有意思的小项目',
 
     growth: '成长经历',
     education: '教育经历',
@@ -45,7 +47,7 @@ export const contentZh = {
     preferences: '偏好',
     beliefs: '观念',
     links: '链接',
-    linkBy: '由 {name} 制作',
+    linkBy: '我的朋友 {name} 给我做的语录',
 
     // GALLERY 二级 tab
     gallery: '收藏',
@@ -247,6 +249,11 @@ export const contentZh = {
 
   life: {
     growth: [
+      {
+        city: '北京',
+        period: '2026.07 – 现在',
+        description: '又回到五道口。同一场梦的续集。',
+      },
       {
         city: '上海',
         period: '2025.12 – 2026.06',

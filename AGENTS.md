@@ -19,14 +19,22 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ### 四个 tab
 
-| tab | 路由 | 渲染 |
-| --- | --- | --- |
-| HOME | `/` | SSR（`force-dynamic`） |
-| LIFE | `/life` | 静态 |
-| GALLERY | `/gallery/[category]/[tab]` | ISR（`revalidate = 3600`） |
-| WORLD | 离站外链 `world.inon.space` | 新标签页打开 |
+| tab | 路由 |
+| --- | --- |
+| HOME | `/` |
+| LIFE | `/life` |
+| GALLERY | `/gallery/[category]/[tab]` |
+| WORLD | 离站外链 `world.inon.space`，新标签页打开 |
 
 GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirect，落到第一个分栏——同一批条目只允许存在一个 URL。
+
+### 全站都是动态渲染，这是语言的代价
+
+语言存在 cookie 里，所以每个页面都必须按请求渲染。`next build` 的输出里**每一条路由都是 `ƒ`**，没有任何静态页。
+
+曾经不是这样：只有中文时 `/life` 是静态、GALLERY 分栏页是 `revalidate = 3600`。加了英文之后这两个都退化成动态，`revalidate` 不再起作用——**别再往页面里加 `revalidate` 或 `dynamic = 'force-static'`，它们不会生效，只会让人误判**。
+
+代价是 GALLERY 每次请求都查一次 Supabase。条目变化频率是「天」级，所以正确的修法是把缓存下沉到数据层（`unstable_cache` 包住 `fetchGalleryItems`），而不是把页面变回静态——两者不可兼得。
 
 ### 内容的两个住处
 
@@ -43,10 +51,12 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 
 语言存在 cookie `inon_locale`，**不体现在 URL 上**：切语言不跳转、不改地址栏。
 
-只有一种语言时 `getRequestLocale()` 刻意不读 cookie——读 cookie 会让整站退化成动态渲染，而这时候读与不读的结果完全一样。加英文要做三件事：
+只有一种语言时 `getRequestLocale()` 刻意不读 cookie——读 cookie 会让整站退化成动态渲染，而这时候读与不读的结果完全一样。现在有了 `zh` 和 `en` 两种，所以 cookie 每请求都会读（见上面「全站都是动态渲染」）。
 
-1. `'en'` 加进 `lib/i18n.ts` 的 `LOCALES`
-2. 新建 `data/content.en.ts`
+再加一种语言要做三件事，别漏：
+
+1. 加进 `lib/i18n.ts` 的 `LOCALES`
+2. 新建 `data/content.<locale>.ts`，**只翻译文字，id / 链接 / logo 路径与中文文件逐字一致**
 3. 在 `lib/content/index.ts` 的 `CONTENT` 里注册
 
 顶栏的语言切换器会自动出现，其余代码不用动。
@@ -81,10 +91,6 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 - 数据：Supabase（`library_items` / `chat_messages`）
 - 模型：Vercel AI SDK + OpenRouter
 - 其他技术请见 `package.json`，务必物尽其用，不要重复造轮子
-
-### 渲染策略是刻意分开的
-
-`/` 用 `force-dynamic`，因为群聊必须每次请求重新取；GALLERY 分栏页用 `revalidate = 3600`，因为收藏条目的变化频率是「天」级。两处取舍不同，**不要用全局 revalidate 一把梭**。
 
 ### 视觉
 

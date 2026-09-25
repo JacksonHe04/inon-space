@@ -12,7 +12,7 @@ import type { Locale } from '@/lib/content/types';
  *   3. 在 lib/content/index.ts 的 CONTENT 里注册
  * 顶栏的语言切换器会自动出现，其他代码不用动。
  */
-export const LOCALES = ['zh'] as const satisfies readonly Locale[];
+export const LOCALES = ['zh', 'en'] as const satisfies readonly Locale[];
 
 export const DEFAULT_LOCALE: Locale = 'zh';
 
