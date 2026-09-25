@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 
+import { PageContainer } from '@/components/container';
 import { Logo } from '@/components/logo';
+import { CollabBadges } from '@/components/site-footer/collab-badges';
 import type { SiteViewTotals } from '@/lib/analytics/queries';
 import type { Labels } from '@/lib/content/types';
 import { BUILT_ON, TECH_STACK } from '@/lib/site-meta';
@@ -17,7 +19,7 @@ export function SiteFooter({
 }) {
   return (
     <footer className="border-border mt-auto border-t">
-      <div className="mx-auto max-w-6xl space-y-3 px-6 py-8 sm:px-8">
+      <PageContainer className="space-y-3 py-8">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
           {/* 本站构建其上的两个：logo 与文字栈同色，避免抢眼 */}
           <span className="flex items-center gap-2.5">
@@ -55,6 +57,15 @@ export function SiteFooter({
           </span>
         </div>
 
+        {/*
+          AI 协作单独一行：它与上面那排「构建在什么之上」是两件事，
+          挤在一排会把「技术栈」和「协作署名」的语义搅在一起。
+        */}
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
+          <span className="text-muted-foreground text-xs">{labels.footerCoBuilt}</span>
+          <CollabBadges />
+        </div>
+
         <p className="text-muted-foreground text-xs">
           © {new Date().getFullYear()} {name} · {labels.footerRights}
           {/* 一条都还没记到时就不显示，免得刚上线就挂着「0 位访客」 */}
@@ -65,7 +76,7 @@ export function SiteFooter({
             </>
           ) : null}
         </p>
-      </div>
+      </PageContainer>
     </footer>
   );
 }

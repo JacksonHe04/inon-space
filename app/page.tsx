@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 
+import { PageContainer } from '@/components/container';
 import { ChatPanel, ChatPanelFallback } from '@/components/home/chat-panel';
 import { ContactRow } from '@/components/home/contact-row';
 import { ExperienceList } from '@/components/home/experience-list';
@@ -24,7 +25,7 @@ export default async function HomePage() {
   const work = experiences.filter((item) => item.kind === 'work');
 
   return (
-    <div className="mx-auto max-w-6xl px-6 sm:px-8">
+    <PageContainer>
       {/*
         首屏：左侧信息，右侧群聊。
         行高由**左栏内容**决定，右栏只负责填满它（min-h 给一个下限）——
@@ -95,6 +96,6 @@ export default async function HomePage() {
       <Section className="mt-6 pb-16">
         <ProjectList items={projects} moreLabel={labels.projectsMore} />
       </Section>
-    </div>
+    </PageContainer>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 
+import { PageContainer } from '@/components/container';
 import { LocaleSwitch } from '@/components/locale-switch';
 import { ThemeToggle } from '@/components/theme-toggle';
 import type { Labels, Locale, Nav } from '@/lib/content/types';
@@ -45,7 +46,7 @@ export function SiteHeader({ locale, labels, nav, worldHref }: SiteHeaderProps) 
         单行不换行：导航本身会缩，右侧那组控件不缩（shrink-0）。
         之前移动端会换行，是因为整体 flex-wrap 且没有约束，右侧那组被挤到第二行。
       */}
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4 sm:px-8">
+      <PageContainer className="flex items-center justify-between gap-4 py-4">
         <nav className="flex min-w-0 items-center gap-x-4 sm:gap-x-5">
           {NAV_ORDER.map((key) => {
             const href = ROUTES[key];
@@ -88,7 +89,7 @@ export function SiteHeader({ locale, labels, nav, worldHref }: SiteHeaderProps) 
           <LocaleSwitch current={locale} labels={labels} />
           <ThemeToggle labels={labels} />
         </div>
-      </div>
+      </PageContainer>
     </header>
   );
 }

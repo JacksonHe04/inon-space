@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element -- 封面来自 Supabase Storage，尺寸已由容器限定 */
 
+import { SkeletonBar } from '@/components/skeleton';
 import type { GalleryItem } from '@/lib/gallery/types';
+import { cn } from '@/lib/utils';
 
 /**
  * 收藏条目列表，带序号。
@@ -59,6 +61,42 @@ export function GalleryItemList({ items }: { items: GalleryItem[] }) {
           </li>
         );
       })}
+    </ol>
+  );
+}
+
+/**
+ * 条目还没到时的占位，**与上面那个列表同构**：同一个序号列宽、同一个 64px 方块、
+ * 同样的标题行 + 注释行。放在同一个文件里是为了让它跟着真实列表一起改 ——
+ * 盒子一旦对不上，骨架换成内容的那一刻版面就会跳。
+ *
+ * 条数固定五条，标题与注释的长短各排一遍：每条都一样长会像表格，不像「条目在陆续到达」。
+ */
+const SKELETON_ROWS = [
+  { title: 'w-[42%]', comment: 'w-[78%]' },
+  { title: 'w-[56%]', comment: 'w-[64%]' },
+  { title: 'w-[34%]', comment: 'w-[86%]' },
+  { title: 'w-[48%]', comment: 'w-[70%]' },
+  { title: 'w-[38%]', comment: 'w-[58%]' },
+] as const;
+
+export function GalleryItemListSkeleton() {
+  return (
+    <ol className="space-y-4" aria-hidden>
+      {SKELETON_ROWS.map((row, index) => (
+        <li key={row.title} className="flex gap-4">
+          <span className="w-7 shrink-0 pt-[5px]">
+            <SkeletonBar className="ml-auto h-2.5 w-4" delay={index * 120} />
+          </span>
+
+          <SkeletonBar className="h-16 w-16 shrink-0" delay={index * 120} />
+
+          <div className="min-w-0 flex-1 space-y-2 pt-0.5">
+            <SkeletonBar className={cn('h-3.5', row.title)} delay={index * 120} />
+            <SkeletonBar className={cn('h-3', row.comment)} delay={index * 120} />
+          </div>
+        </li>
+      ))}
     </ol>
   );
 }

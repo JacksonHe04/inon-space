@@ -185,6 +185,31 @@
     @apply border-border text-muted-foreground rounded-xs border px-2.5 py-1 text-[0.75rem]
       transition-colors;
   }
+
+  /*
+   * 骨架屏的一条占位。全站只有这一种「还没到」的样子 —— 群聊与 GALLERY 的骨架
+   * 都由它拼出来，等待中的观感处处一致。
+   *
+   * 呼吸的是**透明度**而不是颜色：底色始终是 muted，不会在明暗之间来回闪，
+   * 看着更安静，也更像「还在路上」而不是「出错了」。
+   */
+  .skeleton {
+    @apply bg-muted rounded-xs;
+    animation: skeleton-breathe 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-breathe {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* 尊重系统的「减少动态效果」：骨架不再呼吸，静态占位一样能说明「这里还没内容」 */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
 }
 
 /* 群聊头像：颜色由 --avatar-hue 决定，明暗两套各自调过亮度，
