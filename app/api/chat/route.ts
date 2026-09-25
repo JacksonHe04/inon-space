@@ -1,19 +1,12 @@
 import { NextResponse } from 'next/server';
-import { Output, generateText } from 'ai';
 
-import { getChatModel } from '@/lib/ai';
 import { ASSISTANT_AVATAR_SEED } from '@/lib/chat/avatar';
-import {
-  ASSISTANT_NAME,
-  buildSystemPrompt,
-  buildTranscript,
-  chatReplySchema,
-} from '@/lib/chat/persona';
+import { generateChatReply } from '@/lib/chat/generate';
+import { ASSISTANT_NAME } from '@/lib/chat/persona';
 import { fetchRecentMessages, insertMessage, isRateLimited } from '@/lib/chat/queries';
 import { CHAT_MAX_LENGTH, CHAT_PAGE_SIZE, suggestedFrom } from '@/lib/chat/types';
 import { getVisitorIdentity } from '@/lib/chat/visitor';
 import { getContent } from '@/lib/content';
-import { contentToMarkdown } from '@/lib/content/chat-context';
 import { DEFAULT_LOCALE, isLocale } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
@@ -59,40 +52,17 @@ export async function POST(request: Request) {
   const content = getContent(locale);
   const history = await fetchRecentMessages(CHAT_PAGE_SIZE);
 
-  try {
-    const { output } = await generateText({
-      model: getChatModel(),
-      output: Output.object({ schema: chatReplySchema }),
-      system: buildSystemPrompt(contentToMarkdown(content)),
-      prompt: buildTranscript(
-        history.map((message) => ({
-          role: message.role,
-          displayName: message.displayName,
-          content: message.content,
-        }))
-      ),
-      temperature: 0.7,
-      maxOutputTokens: 800,
-    });
+  const reply = await generateChatReply(
+    content,
+    history.map((message) => ({
+      role: message.role,
+      displayName: message.displayName,
+      content: message.content,
+    }))
+  );
 
-    const assistantMessage = await insertMessage({
-      role: 'assistant',
-      content: output.reply,
-      displayName: ASSISTANT_NAME,
-      locationLabel: null,
-      avatarSeed: ASSISTANT_AVATAR_SEED,
-      visitorKey: 'assistant',
-      suggestedQuestions: output.suggestedQuestions,
-    });
-
-    return NextResponse.json({
-      visitor: visitorMessage,
-      assistant: assistantMessage,
-      suggested: output.suggestedQuestions,
-    });
-  } catch (error) {
+  if (!reply) {
     // 访客那条已经落库了 —— 不吞掉，否则用户会以为没发出去
-    console.error('[chat] 生成回复失败', error);
     return NextResponse.json(
       {
         visitor: visitorMessage,
@@ -103,4 +73,20 @@ export async function POST(request: Request) {
       { status: 502 }
     );
   }
+
+  const assistantMessage = await insertMessage({
+    role: 'assistant',
+    content: reply.reply,
+    displayName: ASSISTANT_NAME,
+    locationLabel: null,
+    avatarSeed: ASSISTANT_AVATAR_SEED,
+    visitorKey: 'assistant',
+    suggestedQuestions: reply.suggestedQuestions,
+  });
+
+  return NextResponse.json({
+    visitor: visitorMessage,
+    assistant: assistantMessage,
+    suggested: reply.suggestedQuestions,
+  });
 }
