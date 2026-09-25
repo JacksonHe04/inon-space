@@ -8,6 +8,8 @@ import { SiteHeader } from '@/components/site-header';
 import { getSiteViewTotals } from '@/lib/analytics/queries';
 import { getRequestContent } from '@/lib/content/server';
 import { htmlLang } from '@/lib/i18n';
+import { SITE_URL } from '@/lib/site-meta';
+import { buildPersonSchema } from '@/lib/structured-data';
 import { cn } from '@/lib/utils';
 import './globals.css';
 
@@ -40,14 +42,60 @@ const notoSerifSc = Noto_Serif_SC({
   preload: false,
 });
 
+/**
+ * 全站元信息。
+ *
+ * `metadataBase` 不能省：Open Graph 与 canonical 都要求绝对地址，
+ * 没有它 Next 只会在构建日志里警告一句，然后吐出不完整的标签。
+ *
+ * 语言由 cookie 决定，两种语言共用同一个 URL —— 爬虫没有 cookie，拿到的是默认语言。
+ * 这是「切语言不改地址」这个设计的代价，短期接受。
+ */
 export async function generateMetadata(): Promise<Metadata> {
-  const { content } = await getRequestContent();
+  const { locale, content } = await getRequestContent();
+  const { identity } = content;
+  const title = `${identity.name} · ${identity.tagline}`;
+
   return {
+    metadataBase: new URL(SITE_URL),
     title: {
-      default: `${content.identity.name} · ${content.identity.tagline}`,
-      template: `%s · ${content.identity.name}`,
+      default: title,
+      template: `%s · ${identity.name}`,
     },
-    description: content.identity.tagline,
+    description: identity.tagline,
+    keywords: [...identity.directions],
+    authors: [{ name: identity.name, url: SITE_URL }],
+    creator: identity.name,
+    publisher: identity.name,
+    category: 'technology',
+    // 这是个人主页，不是名片：别让 iOS 把邮箱、电话自动识别成可点拨的链接
+    formatDetection: { email: false, address: false, telephone: false },
+    alternates: { canonical: '/' },
+    openGraph: {
+      type: 'profile',
+      siteName: `${identity.name} · inon.space`,
+      title,
+      description: identity.tagline,
+      url: SITE_URL,
+      locale: locale === 'zh' ? 'zh_CN' : 'en_US',
+      alternateLocale: locale === 'zh' ? 'en_US' : 'zh_CN',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: identity.tagline,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+    },
   };
 }
 
@@ -74,6 +122,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       )}
     >
       <body className="flex min-h-full flex-col">
+        {/*
+          schema.org 的 Person：让搜索引擎知道「何锦诚」与 GitHub、Notion 等账号
+          是同一个实体。`<` 转义成 \\u003c 是必须的 —— 内容里出现 </script> 之类的
+          字面量会把标签提前闭合。
+        */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(buildPersonSchema(content)).replace(/</g, '\\u003c'),
+          }}
+        />
         <Providers>
           <SiteHeader
             locale={locale}
