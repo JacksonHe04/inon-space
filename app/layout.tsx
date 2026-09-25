@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import { Geist_Mono, Source_Serif_4 } from 'next/font/google';
+import { Geist_Mono, Noto_Serif_SC, Source_Serif_4 } from 'next/font/google';
 
 import { Providers } from '@/components/providers';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { getRequestContent } from '@/lib/content/server';
 import { htmlLang } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import './globals.css';
 
 const sourceSerif = Source_Serif_4({
@@ -17,6 +18,24 @@ const sourceSerif = Source_Serif_4({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+});
+
+/**
+ * 中文衬线的**兜底**，排在字体栈的最后一位（见 app/globals.css）。
+ *
+ * Android 只内置 Noto Sans CJK，没有任何中文衬线，光靠 font-family 回退会让整站
+ * 中文掉成黑体，所以必须自备一份。但因为排在系统字体之后，浏览器只在前面所有字体
+ * 都覆盖不到某个字形时才会取它 —— 桌面端实测只请求 2 个西文文件，一个中文分片都不下。
+ *
+ * preload: false 也是同一个理由：中文没有 subset，Google Fonts 给的是几十个
+ * unicode-range 分片，预加载会把它们全拉下来。
+ */
+const notoSerifSc = Noto_Serif_SC({
+  variable: '--font-noto-serif-sc',
+  weight: ['400', '600'],
+  subsets: ['latin'],
+  display: 'swap',
+  preload: false,
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -38,7 +57,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang={htmlLang(locale)}
       suppressHydrationWarning
-      className={`${sourceSerif.variable} ${geistMono.variable} h-full antialiased`}
+      className={cn(
+        sourceSerif.variable,
+        notoSerifSc.variable,
+        geistMono.variable,
+        'h-full antialiased'
+      )}
     >
       <body className="flex min-h-full flex-col">
         <Providers>

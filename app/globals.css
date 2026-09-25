@@ -8,13 +8,27 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-link: var(--link);
-  /* 学者风格：正文一律衬线。--font-sans 与 --font-serif 同栈，避免某处漏用 font-serif 就变无衬线 */
-  --font-sans: var(--font-source-serif), Georgia, "Songti SC", "Noto Serif CJK SC",
-    "Source Han Serif SC", SimSun, "Times New Roman", serif;
-  --font-serif: var(--font-source-serif), Georgia, "Songti SC", "Noto Serif CJK SC",
-    "Source Han Serif SC", SimSun, "Times New Roman", serif;
-  --font-heading: var(--font-source-serif), Georgia, "Songti SC", "Noto Serif CJK SC",
-    "Source Han Serif SC", SimSun, serif;
+  /*
+   * 学者风格：正文一律衬线。--font-sans 与 --font-serif 同栈，避免某处漏用 font-serif 就变无衬线。
+   *
+   * 中文衬线按「本机自带优先、webfont 兜底」排：先西文（Source Serif 4，只覆盖拉丁），
+   * 再系统自带的中文衬线，最后才是 Noto Serif SC webfont。
+   *
+   * 为什么必须带一份 webfont：Android 只内置 Noto Sans CJK，没有任何中文衬线，
+   * 光靠 font-family 回退会让整片中文掉成黑体。
+   * 为什么必须排在系统字体**之后**：中文没有 subset，Google Fonts 给的是几十个
+   * unicode-range 分片，真走到这一步就是 ~1.8MB。浏览器只在前面所有字体都覆盖不到
+   * 某个字形时才会取它，所以放最后＝桌面端一个字节都不下（已实测：只请求 2 个西文文件）。
+   * 反过来写（webfont 在前）会让每个平台都吃满这 1.8MB。
+   *
+   * var() 的兜底值不能省：变量没定义时整个 font-family 声明会因为空条目失效。
+   */
+  --font-sans: var(--font-source-serif), "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC",
+    SimSun, var(--font-noto-serif-sc, serif), "Times New Roman", serif;
+  --font-serif: var(--font-source-serif), "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC",
+    SimSun, var(--font-noto-serif-sc, serif), "Times New Roman", serif;
+  --font-heading: var(--font-source-serif), "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC",
+    SimSun, var(--font-noto-serif-sc, serif);
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-sidebar-ring: var(--sidebar-ring);
@@ -76,7 +90,8 @@
   --input: oklch(0.892 0.006 80);
   --ring: oklch(0.68 0.012 60);
   /* 学术蓝：正文中的链接 */
-  --link: oklch(0.46 0.14 252);
+  /* 链接是站内唯一的高饱和色，定成墨绿。L 与旧的蓝保持不变，只换色相，对比度不受影响 */
+  --link: oklch(0.46 0.11 155);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -113,7 +128,7 @@
   --border: oklch(1 0 0 / 13%);
   --input: oklch(1 0 0 / 17%);
   --ring: oklch(0.55 0.01 70);
-  --link: oklch(0.76 0.1 250);
+  --link: oklch(0.76 0.11 155);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -159,6 +174,16 @@
   /* 小标题：小型大写字母的观感 */
   .kicker {
     @apply text-muted-foreground text-[0.72rem] font-medium tracking-[0.14em] uppercase;
+  }
+
+  /*
+   * 标签：方向、推荐问题这类短词共用同一副样子。
+   * 只定「长什么样」，交互态（hover / disabled）由调用方按自己的载体补 —— li 不需要，
+   * button 需要，所以不写进这里。
+   */
+  .chip {
+    @apply border-border text-muted-foreground rounded-xs border px-2.5 py-1 text-[0.75rem]
+      transition-colors;
   }
 }
 
