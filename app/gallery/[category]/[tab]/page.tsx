@@ -9,8 +9,8 @@ import { fetchGalleryItems } from '@/lib/gallery/queries';
 import { findGalleryTab, isGalleryCategory } from '@/lib/gallery/tabs';
 import type { GalleryItem } from '@/lib/gallery/types';
 
-// 收藏条目变化频率是「天」级，缓存一小时足够
-export const revalidate = 3600;
+// 这里**不要**写 `revalidate`：页面读 cookie 取语言，必然是动态渲染，页面级 revalidate 不生效。
+// 收藏条目的缓存落在 lib/gallery/queries.ts 的 unstable_cache 里。
 
 interface GalleryTabPageProps {
   params: Promise<{ category: string; tab: string }>;
@@ -42,7 +42,6 @@ export default async function GalleryTabPage({ params }: GalleryTabPageProps) {
 
   const { content } = await getRequestContent();
   const { labels } = content;
-  const categoryName = content.gallery.find((item) => item.id === category)?.name ?? category;
 
   // 数据库不可用时退化成空态，而不是整页 500
   let items: GalleryItem[] = [];
@@ -57,11 +56,10 @@ export default async function GalleryTabPage({ params }: GalleryTabPageProps) {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8 lg:py-16">
+      {/* 分类导航自己带标题：选中的分类就按标题渲染，这里不再单独占一行 */}
       <GalleryCategoryNav categories={content.gallery} current={category} />
 
-      <h1 className="mt-8 text-[1.3rem] font-semibold tracking-[0.02em]">{categoryName}</h1>
-
-      <div className="mt-5">
+      <div className="mt-6">
         <GalleryTabNav category={category} current={activeTab.id} labels={labels} />
       </div>
 
