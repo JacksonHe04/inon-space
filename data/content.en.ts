@@ -107,6 +107,18 @@ export const contentEn = {
 
     // Internships, most recent first
     {
+      id: 'baidu',
+      kind: 'work',
+      org: 'Baidu',
+      branch: 'Model Committee AMU',
+      role: 'Product',
+      period: '2026.10 – present',
+      location: 'Beijing',
+      description:
+        'Image understanding product discovery and delivery, annotation system and guideline design, and model evaluation benchmarks',
+      logo: '/logos/orgs/baidu.svg',
+    },
+    {
       id: 'sand-ai',
       kind: 'work',
       org: 'Sand.ai',

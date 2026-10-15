@@ -108,6 +108,17 @@ export const contentZh = {
 
     // 实习（倒序）
     {
+      id: 'baidu',
+      kind: 'work',
+      org: '百度',
+      branch: '模型委员会 AMU',
+      role: '产品',
+      period: '2026.10 – 现在',
+      location: '北京',
+      description: '图像理解产品需求分析与方案落地，标注体系与标注规范建设，模型效果评测基准搭建',
+      logo: '/logos/orgs/baidu.svg',
+    },
+    {
       id: 'sand-ai',
       kind: 'work',
       org: 'Sand.ai',
