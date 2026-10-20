@@ -32,7 +32,7 @@ function CollabBadge({ logo, text, textClass, href, label }: CollabBadgeProps) {
       rel="noreferrer"
       aria-label={label}
       title={label}
-      className="text-muted-foreground inline-flex items-center gap-1.5 no-underline hover:no-underline"
+      className="text-muted-foreground -my-1 inline-flex items-center gap-1.5 py-1 no-underline hover:no-underline"
     >
       <Logo src={logo} alt={label} className="size-3.5" />
       <Logo src={text} alt="" monochrome className={textClass} />
@@ -52,7 +52,7 @@ function OpenCodeGoBadge() {
       rel="noreferrer"
       aria-label="Built with OpenCode and Go"
       title="Built with OpenCode & Go"
-      className="text-muted-foreground inline-flex items-center gap-1.5 no-underline hover:no-underline"
+      className="text-muted-foreground -my-1 inline-flex items-center gap-1.5 py-1 no-underline hover:no-underline"
     >
       <Logo
         src="/logos/tech/opencode_light.svg"

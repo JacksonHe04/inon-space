@@ -30,6 +30,7 @@ export const contentZh = {
     chatNamePlaceholder: '留下名字...',
     chatSending: '小缨缨正在想…',
     chatCount: '{n} 条',
+    chatMessages: '群聊消息',
     chatError: '信号没接上，再试一次。',
     chatErrorTooFast: '说得太快了，歇一会儿再说。',
     chatErrorTooLong: '一条消息最多 500 个字。',
@@ -59,6 +60,11 @@ export const contentZh = {
     galleryWorks: '作品',
     galleryCreators: '创作者',
     galleryEmpty: '收藏条目正在整理中。',
+
+    primaryNav: '主导航',
+    galleryCategories: '收藏分类',
+    galleryTabs: '收藏分栏',
+    skipToContent: '跳到主要内容',
 
     close: '关闭',
     themeToggle: '切换主题',

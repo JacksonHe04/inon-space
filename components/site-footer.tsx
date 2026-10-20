@@ -11,7 +11,7 @@ import { fillTemplate, parseTemplate } from '@/lib/template';
  */
 export function SiteFooter({ stats }: { stats: SiteViewTotals }) {
   return (
-    <footer className="border-border mt-auto border-t">
+    <footer lang="en" className="border-border mt-auto border-t">
       <PageContainer className="space-y-3 py-8">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
           <span className="text-muted-foreground text-xs">{FOOTER.builtWith}</span>
@@ -27,7 +27,7 @@ export function SiteFooter({ stats }: { stats: SiteViewTotals }) {
                 title={tech.name}
                 aria-label={tech.name}
                 // 灰色打底（全局 a 样式会把 mask 字标染成站点链接色，必须压掉），hover 一律不变色
-                className="text-muted-foreground inline-flex no-underline hover:no-underline"
+                className="text-muted-foreground -my-1 inline-flex py-1 no-underline hover:no-underline"
               >
                 <Logo
                   src={tech.src}

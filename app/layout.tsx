@@ -133,14 +133,33 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             __html: JSON.stringify(buildPersonSchema(content)).replace(/</g, '\\u003c'),
           }}
         />
+        {/*
+          旧浏览器兜底：只保留最基础的特性检测，命中就直接去静态页。
+          这段必须是 ES5 —— Next 16 的 bundle 在老浏览器里可能连解析都过不去，
+          而经典脚本仍会执行，这是最后一道能说话的防线。
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var ok=window.fetch&&window.Promise&&'at' in Array.prototype&&'replaceAll' in String.prototype&&'isWellFormed' in String.prototype;if(!ok){location.replace('/fallback.html');}}catch(e){location.replace('/fallback.html');}})();",
+          }}
+        />
         <Providers>
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:block focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:no-underline"
+          >
+            {content.labels.skipToContent}
+          </a>
           <SiteHeader
             locale={locale}
             labels={content.labels}
             nav={content.nav}
             worldHref={content.world.href}
           />
-          <main className="flex-1">{children}</main>
+          <main id="main" tabIndex={-1} className="flex-1">
+            {children}
+          </main>
           <SiteFooter stats={stats} />
           <PageViewTracker enabled={trackViews} />
         </Providers>

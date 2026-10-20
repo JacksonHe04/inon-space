@@ -31,6 +31,7 @@ export const contentEn = {
     chatNamePlaceholder: 'Leave a name...',
     chatSending: 'Yingying is thinking…',
     chatCount: '{n} messages',
+    chatMessages: 'Chat messages',
     chatError: 'The signal dropped. Try again.',
     chatErrorTooFast: 'That was quick. Take a breath and try again.',
     chatErrorTooLong: 'A message can be up to 500 characters.',
@@ -58,6 +59,11 @@ export const contentEn = {
     galleryWorks: 'Works',
     galleryCreators: 'Creators',
     galleryEmpty: 'The collection is still being sorted.',
+
+    primaryNav: 'Primary navigation',
+    galleryCategories: 'Gallery categories',
+    galleryTabs: 'Gallery tabs',
+    skipToContent: 'Skip to main content',
 
     close: 'Close',
     themeToggle: 'Toggle theme',

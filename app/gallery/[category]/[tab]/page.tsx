@@ -65,7 +65,7 @@ export default async function GalleryTabPage({ params }: GalleryTabPageProps) {
   return (
     <PageContainer className="pt-8 pb-12 lg:pt-10 lg:pb-16">
       {/* 分类导航自己带标题：选中的分类就按标题渲染，这里不再单独占一行 */}
-      <GalleryCategoryNav categories={content.gallery} current={category} />
+      <GalleryCategoryNav categories={content.gallery} current={category} labels={labels} />
 
       <div className="mt-6">
         <GalleryTabNav category={category} current={activeTab.id} labels={labels} />
@@ -116,7 +116,7 @@ async function GalleryItems({
   const visible = items.filter((item) => item.kind === kind);
 
   return (
-    <div className="animate-in fade-in duration-300">
+    <div className="animate-in fade-in duration-300 motion-reduce:animate-none">
       {visible.length === 0 ? (
         <p className="text-muted-foreground text-[0.88rem]">{emptyLabel}</p>
       ) : (

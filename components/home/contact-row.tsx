@@ -34,7 +34,7 @@ export function ContactRow({ items, closeLabel }: { items: Contact[]; closeLabel
                 rel="noreferrer"
                 title={item.label}
                 aria-label={item.label}
-                className="text-muted-foreground hover:text-foreground inline-flex no-underline transition-colors hover:no-underline"
+                className="text-muted-foreground hover:text-foreground -m-1 inline-flex p-1 no-underline transition-colors hover:no-underline"
               >
                 <Logo src={item.logo} alt={item.label} monochrome className="size-[18px]" />
               </a>
@@ -44,7 +44,7 @@ export function ContactRow({ items, closeLabel }: { items: Contact[]; closeLabel
                 title={item.label}
                 aria-label={item.label}
                 onClick={() => setActive(item)}
-                className="text-muted-foreground hover:text-foreground inline-flex transition-colors"
+                className="text-muted-foreground hover:text-foreground -m-1 inline-flex p-1 transition-colors"
               >
                 <Logo src={item.logo} alt={item.label} monochrome className="size-[18px]" />
               </button>
@@ -55,6 +55,7 @@ export function ContactRow({ items, closeLabel }: { items: Contact[]; closeLabel
 
       <dialog
         ref={dialogRef}
+        aria-label={active?.label}
         onClose={() => setActive(null)}
         onClick={(event) => {
           // 点遮罩关闭：dialog 自身就是遮罩层
@@ -73,7 +74,7 @@ export function ContactRow({ items, closeLabel }: { items: Contact[]; closeLabel
             <button
               type="button"
               onClick={() => setActive(null)}
-              className="text-muted-foreground hover:text-foreground text-xs underline"
+              className="text-muted-foreground hover:text-foreground px-2 py-1 text-xs underline"
             >
               {closeLabel}
             </button>

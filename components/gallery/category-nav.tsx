@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { GalleryCategory, GalleryCategoryId } from '@/lib/content/types';
+import type { GalleryCategory, GalleryCategoryId, Labels } from '@/lib/content/types';
 import { cn } from '@/lib/utils';
 
 /**
@@ -18,15 +18,20 @@ import { cn } from '@/lib/utils';
 export function GalleryCategoryNav({
   categories,
   current,
+  labels,
 }: {
   categories: GalleryCategory[];
   current: GalleryCategoryId;
+  labels: Labels;
 }) {
   const itemClass =
     'text-[0.72rem] tracking-[0.14em] uppercase no-underline transition-colors';
 
   return (
-    <nav className="border-border flex flex-wrap items-baseline gap-x-5 gap-y-2 border-b pb-2.5">
+    <nav
+      aria-label={labels.galleryCategories}
+      className="border-border flex flex-wrap items-baseline gap-x-5 gap-y-2 border-b pb-2.5"
+    >
       {categories.map((category) =>
         category.id === current ? (
           <h1

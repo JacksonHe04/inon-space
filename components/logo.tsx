@@ -31,23 +31,22 @@ interface LogoProps {
 export function Logo({ src, darkSrc, alt, monochrome, className }: LogoProps) {
   if (monochrome) {
     const mask = `url("${src}")`;
-    return (
-      <span
-        role="img"
-        aria-label={alt}
-        style={{
-          maskImage: mask,
-          WebkitMaskImage: mask,
-          maskSize: 'contain',
-          WebkitMaskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          WebkitMaskRepeat: 'no-repeat',
-          maskPosition: 'center',
-          WebkitMaskPosition: 'center',
-        }}
-        className={cn('inline-block shrink-0 bg-current', className)}
-      />
-    );
+    const style = {
+      maskImage: mask,
+      WebkitMaskImage: mask,
+      maskSize: 'contain',
+      WebkitMaskSize: 'contain',
+      maskRepeat: 'no-repeat',
+      WebkitMaskRepeat: 'no-repeat',
+      maskPosition: 'center',
+      WebkitMaskPosition: 'center',
+    } as const;
+    const classes = cn('inline-block shrink-0 bg-current', className);
+
+    // alt 为空表示这枚字标只是装饰，名称由外层链接提供；role="img" + 空名称反而会被读屏报出来
+    if (!alt) return <span aria-hidden="true" style={style} className={classes} />;
+
+    return <span role="img" aria-label={alt} style={style} className={classes} />;
   }
 
   if (darkSrc) {

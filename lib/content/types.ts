@@ -247,6 +247,8 @@ export interface Labels {
   chatSending: string;
   /** 消息条数角标，`{n}` 会被替换成数字，如「{n} 条」 */
   chatCount: string;
+  /** 群聊消息区域的无障碍名称；读屏用它区分这是「消息记录」而不是普通列表 */
+  chatMessages: string;
   chatError: string;
   chatErrorTooFast: string;
   chatErrorTooLong: string;
@@ -287,6 +289,16 @@ export interface Labels {
   /** 音乐人 / 作家 / 导演 */
   galleryCreators: string;
   galleryEmpty: string;
+
+  /* 导航与页面骨架的无障碍名称 */
+  /** 顶栏主导航 */
+  primaryNav: string;
+  /** GALLERY 一级分类导航 */
+  galleryCategories: string;
+  /** GALLERY 二级分栏导航 */
+  galleryTabs: string;
+  /** 键盘用户跳过顶栏、直接到正文的链接 */
+  skipToContent: string;
 
   /* 通用 */
   close: string;

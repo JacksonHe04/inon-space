@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 
 import { useIsClient } from '@/lib/use-is-client';
 import { Avatar, SeedAvatar } from '@/components/chat/avatar';
@@ -30,6 +30,27 @@ const AI_BADGE = 'AI';
 
 /** 访客自填名字在浏览器里的存放位置 */
 const NAME_STORAGE_KEY = 'inon_chat_name';
+
+/**
+ * 名字存在 localStorage。用 useSyncExternalStore 而不是「effect 里 setState」：
+ * 后者会触发级联渲染，React Compiler 会直接报错；这个写法也让服务端与客户端各用各的快照。
+ */
+function subscribeStoredName(callback: () => void) {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+}
+
+function getStoredNameSnapshot(): string {
+  try {
+    return window.localStorage.getItem(NAME_STORAGE_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function getServerNameSnapshot(): string {
+  return '';
+}
 
 /** 去重 + 按时间排序：自己的乐观消息和 realtime 推来的同一条会撞车 */
 function mergeMessages(current: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
@@ -65,7 +86,13 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // 访客给自己起的名字。空着就用服务端按地理头推出来的那个
-  const [name, setName] = useState('');
+  const storedName = useSyncExternalStore(
+    subscribeStoredName,
+    getStoredNameSnapshot,
+    getServerNameSnapshot
+  );
+  const [nameDraft, setNameDraft] = useState<string | null>(null);
+  const name = nameDraft ?? storedName;
   // 时间只在客户端格式化：服务端时区和访客时区未必一致，放服务端渲染会水合不上
   const isClient = useIsClient();
 
@@ -101,15 +128,6 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, []);
-
-  // 名字存本地：群聊是常来常往的地方，不该每次都让人重打一遍
-  useEffect(() => {
-    try {
-      setName(window.localStorage.getItem(NAME_STORAGE_KEY) ?? '');
-    } catch {
-      // 隐私模式下 localStorage 会抛错，那就当没存过
-    }
   }, []);
 
   // 新消息进来滚到底
@@ -194,7 +212,10 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
      * 分隔线只在窄屏出现：那里左栏和群聊是上下叠的，需要一条线把两者分开；
      * 宽屏是左右并排，群聊从自己的顶部开始往下排，上面再来一条线是多余的。
      */
-    <section className="border-border flex h-full min-h-0 flex-col border-t pt-6 lg:border-t-0 lg:pt-0">
+    <section
+      aria-label={labels.chatSubtitle}
+      className="border-border flex h-full min-h-0 flex-col border-t pt-6 lg:border-t-0 lg:pt-0"
+    >
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="text-muted-foreground text-[0.78rem]">{labels.chatSubtitle}</p>
         <span className="text-muted-foreground text-[0.7rem] tabular-nums">
@@ -207,7 +228,16 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
         固定高度就白设了。绝对定位之后这一层对流布局而言是空的，高度只由外层说了算。
       */}
       <div className="border-border relative min-h-0 flex-1 border-t">
-        <div ref={scrollRef} className="absolute inset-0 overflow-y-auto pt-4">
+        <div
+          ref={scrollRef}
+          tabIndex={0}
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+          aria-label={labels.chatMessages}
+          aria-busy={sending}
+          className="absolute inset-0 overflow-y-auto pt-4 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        >
           {messages.length === 0 ? (
             <p className="text-muted-foreground py-8 text-center text-[0.82rem]">
               {labels.chatEmpty}
@@ -264,7 +294,7 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
           )}
 
           {sending ? (
-            <p className="text-muted-foreground mt-4 text-[0.78rem] italic">
+            <p role="status" className="text-muted-foreground mt-4 text-[0.78rem] italic">
               {labels.chatSending}
             </p>
           ) : null}
@@ -314,7 +344,7 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
             value={name}
             onChange={(event) => {
               const next = event.target.value;
-              setName(next);
+              setNameDraft(next);
               try {
                 window.localStorage.setItem(NAME_STORAGE_KEY, next);
               } catch {
@@ -322,12 +352,14 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
               }
             }}
             maxLength={CHAT_NAME_MAX_LENGTH}
+            autoComplete="nickname"
             placeholder={labels.chatNamePlaceholder}
             aria-label={labels.chatNamePlaceholder}
             className={cn(
               'border-border bg-transparent placeholder:text-muted-foreground/70',
               'focus:border-foreground/40 rounded-xs w-20 shrink-0 border px-2.5 py-2',
-              'text-[0.85rem] outline-none transition-colors sm:w-24'
+              'text-[0.85rem] outline-none transition-colors sm:w-24',
+              'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
             )}
           />
           <input
@@ -335,12 +367,15 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             maxLength={CHAT_MAX_LENGTH}
+            autoComplete="off"
+            enterKeyHint="send"
             placeholder={labels.chatPlaceholder}
             aria-label={labels.chatPlaceholder}
             className={cn(
               'border-border bg-transparent placeholder:text-muted-foreground/70',
               'focus:border-foreground/40 rounded-xs min-w-0 flex-1 border px-3 py-2',
-              'text-[0.85rem] outline-none transition-colors'
+              'text-[0.85rem] outline-none transition-colors',
+              'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
             )}
           />
           <button
@@ -355,7 +390,11 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
           </button>
         </form>
 
-        {error ? <p className="text-destructive mt-2 text-[0.75rem]">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-destructive mt-2 text-[0.75rem]">
+            {error}
+          </p>
+        ) : null}
       </div>
     </section>
   );

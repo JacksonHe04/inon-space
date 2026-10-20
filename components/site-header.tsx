@@ -47,7 +47,7 @@ export function SiteHeader({ locale, labels, nav, worldHref }: SiteHeaderProps) 
         之前移动端会换行，是因为整体 flex-wrap 且没有约束，右侧那组被挤到第二行。
       */}
       <PageContainer className="flex items-center justify-between gap-4 py-4">
-        <nav className="flex min-w-0 items-center gap-x-4 sm:gap-x-5">
+        <nav aria-label={labels.primaryNav} className="flex min-w-0 items-center gap-x-4 sm:gap-x-5">
           {NAV_ORDER.map((key) => {
             const href = ROUTES[key];
             const active = key === 'home' ? pathname === href : pathname.startsWith(href);
@@ -57,6 +57,7 @@ export function SiteHeader({ locale, labels, nav, worldHref }: SiteHeaderProps) 
                 key={key}
                 href={href}
                 prefetch={!FRESH_ROUTES.includes(key)}
+                aria-current={active ? 'page' : undefined}
                 className={cn(
                   navItemClass,
                   'shrink-0',

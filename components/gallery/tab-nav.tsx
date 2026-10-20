@@ -22,12 +22,13 @@ export function GalleryTabNav({
   labels: Labels;
 }) {
   return (
-    <nav className="flex flex-wrap gap-x-5 gap-y-2">
+    <nav aria-label={labels.galleryTabs} className="flex flex-wrap gap-x-5 gap-y-2">
       {galleryTabs(category).map((tab) => (
         <Link
           key={tab.id}
           href={`${ROUTES.gallery}/${category}/${tab.id}`}
           prefetch
+          aria-current={tab.id === current ? 'page' : undefined}
           className={cn(
             'text-[0.75rem] no-underline transition-colors hover:no-underline',
             tab.id === current
