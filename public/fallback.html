@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>何锦诚 · inon.space</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f7f4ee;
+        --fg: #211f1b;
+        --muted: #6f6a60;
+        --line: #d8d2c5;
+        --link: #2b5f46;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #171613;
+          --fg: #ece7dc;
+          --muted: #a7a094;
+          --line: #3b3831;
+          --link: #8fc9a5;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Source Serif 4", "Noto Serif SC", Georgia, "Songti SC", serif;
+        line-height: 1.75;
+      }
+      main {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 4rem 1.5rem 5rem;
+      }
+      .kicker {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 0.75rem 0 0;
+        font-size: 1.6rem;
+        line-height: 1.3;
+      }
+      h2 {
+        margin: 2.5rem 0 0.75rem;
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      p { margin: 0.75rem 0 0; }
+      .muted { color: var(--muted); }
+      .notice {
+        margin-top: 2rem;
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--line);
+      }
+      ul { margin: 0.75rem 0 0; padding-left: 1.25rem; }
+      li { margin: 0.35rem 0; }
+      a { color: var(--link); text-underline-offset: 3px; }
+      a:focus-visible {
+        outline: 2px solid var(--link);
+        outline-offset: 3px;
+      }
+      hr { margin: 2.5rem 0 0; border: 0; border-top: 1px solid var(--line); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="kicker">inon.space</p>
+      <h1>何锦诚 · Jackson He</h1>
+      <p class="muted">一位 AI Native 产品工程师 &amp; 全栈开发者 &amp; 兼职 FDE</p>
+
+      <div class="notice">
+        <strong>你的浏览器版本较旧。</strong>
+        <p>
+          完整站点需要 Chrome 111+、Edge 111+、Firefox 111+ 或 Safari 16.4+。
+          请升级浏览器后再访问完整页面；这个静态页只保留最基本的介绍和联系方式。
+        </p>
+        <p lang="en">
+          Your browser is out of date. Please upgrade to Chrome 111+, Edge 111+,
+          Firefox 111+, or Safari 16.4+ for the full site.
+        </p>
+      </div>
+
+      <h2>联系我 · Contact</h2>
+      <ul>
+        <li><a href="https://github.com/JacksonHe04">GitHub</a></li>
+        <li><a href="mailto:yingyingdontkill@gmail.com">Gmail</a></li>
+        <li><a href="https://jacksonhe04.notion.site/">Notion</a></li>
+      </ul>
+
+      <hr />
+      <p class="muted">
+        已经升级了浏览器？
+        <a href="/">进入完整站点</a>。
+      </p>
+    </main>
+  </body>
+</html>
