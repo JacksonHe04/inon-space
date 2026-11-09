@@ -121,7 +121,7 @@ export const contentEn = {
       period: '2026.10 – present',
       location: 'Beijing',
       description:
-        'Image understanding product discovery and delivery, annotation system and guideline design, and model evaluation benchmarks',
+        'Full-modality video generation training data QA system, video-editing PE production pipeline delivery, model evaluation and multimodal frontier tracking',
       logo: '/logos/orgs/baidu.svg',
     },
     {
@@ -156,7 +156,8 @@ export const contentEn = {
       role: 'Product',
       period: '2025.08 – 2025.11',
       location: 'Beijing',
-      description: 'Observability and model routing for an enterprise MaaS platform',
+      description:
+        'Enterprise MaaS platform observability, Model Router Gateway, Agent Sandbox',
       logo: '/logos/orgs/zai.svg',
     },
   ],

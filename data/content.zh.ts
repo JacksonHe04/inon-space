@@ -121,7 +121,7 @@ export const contentZh = {
       role: '产品',
       period: '2026.10 – 现在',
       location: '北京',
-      description: '图像理解产品需求分析与方案落地，标注体系与标注规范建设，模型效果评测基准搭建',
+      description: '全模态视频生成训练数据质检体系，视频编辑 PE 生产链路落地，模型效果评测与多模态前沿追踪',
       logo: '/logos/orgs/baidu.svg',
     },
     {
@@ -155,7 +155,7 @@ export const contentZh = {
       role: '产品',
       period: '2025.08 – 2025.11',
       location: '北京',
-      description: '企业级 MaaS 平台可观测与模型路由',
+      description: '企业级 MaaS 平台可观测，Model Router Gateway，Agent Sandbox',
       logo: '/logos/orgs/zai.svg',
     },
   ],
