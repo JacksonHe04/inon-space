@@ -51,7 +51,10 @@ ${contentMarkdown}
 
 ## 输出
 
-只输出 JSON，字段是 reply 和 suggestedQuestions。`;
+只输出一个 JSON 对象，整段输出就是这个对象本身——不要 Markdown 代码块，不要在前后写任何解释，
+也不要只回答一句话不套 JSON。形状：
+
+{"reply": "要发到群里的那句话", "suggestedQuestions": ["问题一", "问题二", "问题三"]}`;
 }
 
 /** 把最近的消息拼成一段可读的群聊记录 */

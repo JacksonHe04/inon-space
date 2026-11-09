@@ -60,6 +60,16 @@ export async function generateChatReply({
       const parsed = parseReply(text);
       if (parsed) return parsed;
 
+      // 最后一次仍然不是 JSON：模型干脆只回了句大白话。那就是回复本身，
+      // 不能因为少了个 JSON 外壳就让访客看到「发送失败」。
+      if (attempt === ATTEMPTS) {
+        const salvaged = salvageReply(text);
+        if (salvaged) {
+          console.warn(`[chat] 第 ${attempt}/${ATTEMPTS} 次输出没有 JSON，按纯文本回复`, text.slice(0, 200));
+          return salvaged;
+        }
+      }
+
       console.error(`[chat] 第 ${attempt}/${ATTEMPTS} 次输出无法解析`, text.slice(0, 400));
     } catch (error) {
       console.error(`[chat] 第 ${attempt}/${ATTEMPTS} 次生成失败`, error);
@@ -94,4 +104,24 @@ function parseReply(text: string): ChatReplyOutput | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * 连 JSON 都没有时的最后一条退路：把模型那句话直接当回复。
+ *
+ * 线上真实出现过两次重试都只回了「凌晨 1 点睡，早上 8 点起 😄」——没有任何 JSON。
+ * 这句话本身就是群聊里该说的话，丢掉它只会让访客看到「发送失败」。
+ *
+ * 只取第一个 `{` 之前的部分：一旦出现花括号，后面可能是半截 JSON，
+ * 宁可不兜也不要把 `{"reply": ...` 发到群里。suggestedQuestions 留空，
+ * 客户端会继续显示上一轮的推荐问题。
+ */
+function salvageReply(text: string): ChatReplyOutput | null {
+  if (typeof text !== 'string') return null;
+
+  const brace = text.indexOf('{');
+  const head = (brace === -1 ? text : text.slice(0, brace)).trim();
+  if (!head) return null;
+
+  return { reply: head, suggestedQuestions: [] };
 }
