@@ -76,7 +76,11 @@ export default async function GalleryTabPage({ params }: GalleryTabPageProps) {
           分类与分栏都由内容文件驱动，不等数据库 —— 所以整页的导航先出来，
           只有条目那一块在等。切换分栏时同理：导航纹丝不动，换的只是下面的列表。
         */}
-        <Suspense fallback={<GalleryItemListSkeleton />}>
+        <Suspense
+          fallback={
+            <GalleryItemListSkeleton showMeta={category === 'live' && activeTab.kind === 'work'} />
+          }
+        >
           <GalleryItems
             category={category}
             kind={activeTab.kind}

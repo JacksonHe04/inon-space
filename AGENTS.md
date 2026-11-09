@@ -28,6 +28,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirect，落到第一个分栏——同一批条目只允许存在一个 URL。
 
+分类名固定英文：INDIE / ROCK、HIPHOP、READING、FILMS、LIVE。LIVE 按「现场 / 音乐人」分栏，现场的日期·城市放在 `library_items.meta`，普通书影留空。
+
 ### 全站都是动态渲染，这是语言的代价
 
 语言存在 cookie 里，所以每个页面都必须按请求渲染。`next build` 的输出里**每一条路由都是 `ƒ`**，没有任何静态页。
@@ -62,7 +64,7 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 
 | 内容 | 放哪 | 为什么 |
 | --- | --- | --- |
-| 人本身（称呼、方向、经历、联系、项目、LIFE 全部、四个收藏分类名） | `data/content.zh.ts` | 长度是「一个人能读完」的量级 |
+| 人本身（称呼、方向、经历、联系、项目、LIFE 全部、五个收藏分类名） | `data/content.zh.ts` | 长度是「一个人能读完」的量级 |
 | 收藏条目（专辑 / 单曲 / 创作者） | Supabase `library_items` | 会持续增长，不适合进内容文件 |
 
 「人读得完」正是不需要 RAG 的原因：`lib/content/chat-context.ts` 把内容文件拍平成 Markdown，直接作为模型 system prompt 的唯一事实来源，不裁剪、不摘要——摘要是另一种失真。

@@ -52,6 +52,12 @@ export function GalleryItemList({ items }: { items: GalleryItem[] }) {
                 ) : null}
               </div>
 
+              {item.meta ? (
+                <p className="text-muted-foreground mt-0.5 text-[0.78rem] tabular-nums">
+                  {item.meta}
+                </p>
+              ) : null}
+
               {item.comment ? (
                 <p className="text-muted-foreground mt-0.5 text-[0.82rem] leading-relaxed text-pretty">
                   {item.comment}
@@ -67,20 +73,20 @@ export function GalleryItemList({ items }: { items: GalleryItem[] }) {
 
 /**
  * 条目还没到时的占位，**与上面那个列表同构**：同一个序号列宽、同一个 64px 方块、
- * 同样的标题行 + 注释行。放在同一个文件里是为了让它跟着真实列表一起改 ——
- * 盒子一旦对不上，骨架换成内容的那一刻版面就会跳。
+ * 同样的标题行 + 注释行；LIVE 有日期行，用 showMeta 补上。放在同一个文件里
+ * 是为了让它跟着真实列表一起改 —— 盒子一旦对不上，骨架换成内容的那一刻版面就会跳。
  *
  * 条数固定五条，标题与注释的长短各排一遍：每条都一样长会像表格，不像「条目在陆续到达」。
  */
 const SKELETON_ROWS = [
-  { title: 'w-[42%]', comment: 'w-[78%]' },
-  { title: 'w-[56%]', comment: 'w-[64%]' },
-  { title: 'w-[34%]', comment: 'w-[86%]' },
-  { title: 'w-[48%]', comment: 'w-[70%]' },
-  { title: 'w-[38%]', comment: 'w-[58%]' },
+  { title: 'w-[42%]', meta: 'w-[46%]', comment: 'w-[78%]' },
+  { title: 'w-[56%]', meta: 'w-[38%]', comment: 'w-[64%]' },
+  { title: 'w-[34%]', meta: 'w-[52%]', comment: 'w-[86%]' },
+  { title: 'w-[48%]', meta: 'w-[42%]', comment: 'w-[70%]' },
+  { title: 'w-[38%]', meta: 'w-[48%]', comment: 'w-[58%]' },
 ] as const;
 
-export function GalleryItemListSkeleton() {
+export function GalleryItemListSkeleton({ showMeta = false }: { showMeta?: boolean }) {
   return (
     <ol className="space-y-4" aria-hidden>
       {SKELETON_ROWS.map((row, index) => (
@@ -93,6 +99,9 @@ export function GalleryItemListSkeleton() {
 
           <div className="min-w-0 flex-1 space-y-2 pt-0.5">
             <SkeletonBar className={cn('h-3.5', row.title)} delay={index * 120} />
+            {showMeta ? (
+              <SkeletonBar className={cn('h-2.5', row.meta)} delay={index * 120} />
+            ) : null}
             <SkeletonBar className={cn('h-3', row.comment)} delay={index * 120} />
           </div>
         </li>

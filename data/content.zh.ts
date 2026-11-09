@@ -58,6 +58,8 @@ export const contentZh = {
     galleryAlbums: '专辑',
     gallerySongs: '单曲',
     galleryWorks: '作品',
+    galleryLive: '现场',
+    galleryMusicians: '音乐人',
     galleryCreators: '创作者',
     galleryEmpty: '收藏条目正在整理中。',
 
@@ -421,6 +423,7 @@ export const contentZh = {
     { id: 'hiphop', name: 'HIPHOP' },
     { id: 'reading', name: 'READING' },
     { id: 'films', name: 'FILMS' },
+    { id: 'live', name: 'LIVE' },
   ],
 
   world: {

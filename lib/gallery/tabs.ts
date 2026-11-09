@@ -5,15 +5,21 @@ import type { GalleryItemKind, GalleryTabId } from '@/lib/gallery/types';
  * GALLERY 二级 tab 的分栏规则。
  *
  * 音乐（INDIE/ROCK、HIPHOP）按「专辑 / 单曲 / 创作者」分，
- * 读书与影视按「作品 / 创作者」分 —— 数据库里的 work 在音乐下叫专辑、
- * 在别处叫作品，所以 subtype → tab 的映射是随分类变的，不是固定的。
+ * 读书与影视按「作品 / 创作者」分，LIVE 按「现场 / 音乐人」分 —— 数据库里的 work
+ * 在音乐下叫专辑、在别处叫作品，所以 subtype → tab 的映射是随分类变的，不是固定的。
  *
  * 分类名固定英文，tab 名走 labels（会随语言变）。
  */
 export interface GalleryTab {
   id: GalleryTabId;
   /** Labels 里对应的字段名 */
-  labelKey: 'galleryAlbums' | 'gallerySongs' | 'galleryWorks' | 'galleryCreators';
+  labelKey:
+    | 'galleryAlbums'
+    | 'gallerySongs'
+    | 'galleryWorks'
+    | 'galleryLive'
+    | 'galleryMusicians'
+    | 'galleryCreators';
   /** 这个 tab 收 `library_items.subtype` 的哪一类 */
   kind: GalleryItemKind;
 }
@@ -29,6 +35,12 @@ const MEDIA_TABS: readonly GalleryTab[] = [
   { id: 'creators', labelKey: 'galleryCreators', kind: 'creator' },
 ];
 
+/** LIVE 按「现场 / 音乐人」分栏：现场是他去过的演出，音乐人是这些演出里的人 */
+const LIVE_TABS: readonly GalleryTab[] = [
+  { id: 'works', labelKey: 'galleryLive', kind: 'work' },
+  { id: 'creators', labelKey: 'galleryMusicians', kind: 'creator' },
+];
+
 /** 音乐的两个分类：有「单曲」这一层的就是音乐 */
 const MUSIC_CATEGORIES: readonly GalleryCategoryId[] = ['indie-rock', 'hiphop'];
 
@@ -38,6 +50,7 @@ export function isGalleryCategory(value: string): value is GalleryCategoryId {
 }
 
 export function galleryTabs(category: GalleryCategoryId): readonly GalleryTab[] {
+  if (category === 'live') return LIVE_TABS;
   return MUSIC_CATEGORIES.includes(category) ? MUSIC_TABS : MEDIA_TABS;
 }
 

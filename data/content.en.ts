@@ -57,6 +57,8 @@ export const contentEn = {
     galleryAlbums: 'Albums',
     gallerySongs: 'Songs',
     galleryWorks: 'Works',
+    galleryLive: 'Live',
+    galleryMusicians: 'Musicians',
     galleryCreators: 'Creators',
     galleryEmpty: 'The collection is still being sorted.',
 
@@ -437,6 +439,7 @@ export const contentEn = {
     { id: 'hiphop', name: 'HIPHOP' },
     { id: 'reading', name: 'READING' },
     { id: 'films', name: 'FILMS' },
+    { id: 'live', name: 'LIVE' },
   ],
 
   world: {

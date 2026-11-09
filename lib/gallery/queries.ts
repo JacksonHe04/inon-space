@@ -14,6 +14,7 @@ interface LibraryItemRow {
   subtype: string;
   name: string;
   creator: string;
+  meta: string;
   comment: string;
   link: string;
   image_url: string | null;
@@ -49,7 +50,7 @@ export const fetchGalleryItems = unstable_cache(
 
     const { data, error } = await supabase
       .from('library_items')
-      .select('id, subtype, name, creator, comment, link, image_url')
+      .select('id, subtype, name, creator, meta, comment, link, image_url')
       .eq('category', category)
       .order('sort_order', { ascending: true });
 
@@ -60,6 +61,7 @@ export const fetchGalleryItems = unstable_cache(
       kind: toKind(row.subtype),
       name: row.name,
       creator: row.creator,
+      meta: row.meta,
       comment: row.comment,
       link: row.link,
       imageUrl: row.image_url,

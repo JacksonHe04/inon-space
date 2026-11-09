@@ -14,6 +14,8 @@ export interface GalleryItem {
   name: string;
   /** 作者 / 歌手 / 导演。creator 类型的条目此字段为空，名字本身在 name 里 */
   creator: string;
+  /** 一行事实说明，如现场的日期与城市；普通书影留空 */
+  meta: string;
   comment: string;
   link: string;
   imageUrl: string | null;

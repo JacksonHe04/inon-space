@@ -186,8 +186,8 @@ export interface Life {
 /*  GALLERY                                                                   */
 /* -------------------------------------------------------------------------- */
 
-/** GALLERY 的四个分类。数组是唯一事实源，类型从它派生 */
-export const GALLERY_CATEGORY_IDS = ['indie-rock', 'hiphop', 'reading', 'films'] as const;
+/** GALLERY 的分类。数组是唯一事实源，类型从它派生 */
+export const GALLERY_CATEGORY_IDS = ['indie-rock', 'hiphop', 'reading', 'films', 'live'] as const;
 
 export type GalleryCategoryId = (typeof GALLERY_CATEGORY_IDS)[number];
 
@@ -286,6 +286,10 @@ export interface Labels {
   gallerySongs: string;
   /** 读书 / 影视里的作品 */
   galleryWorks: string;
+  /** LIVE 分类的「现场」tab */
+  galleryLive: string;
+  /** LIVE 分类的「音乐人」tab */
+  galleryMusicians: string;
   /** 音乐人 / 作家 / 导演 */
   galleryCreators: string;
   galleryEmpty: string;
