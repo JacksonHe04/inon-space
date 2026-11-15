@@ -427,7 +427,7 @@ export const contentEn = {
       },
       {
         label: 'personal website',
-        href: 'https://xiaobaozi.cn',
+        href: 'https://www.xiaobaozi.cn',
         by: { name: 'Ziye Tang', href: 'https://github.com/ZeroTang05' },
         byTemplate: 'owner',
       },

@@ -411,7 +411,7 @@ export const contentZh = {
       },
       {
         label: '个人网站',
-        href: 'https://xiaobaozi.cn',
+        href: 'https://www.xiaobaozi.cn',
         by: { name: '唐梓烨', href: 'https://github.com/ZeroTang05' },
         byTemplate: 'owner',
       },
