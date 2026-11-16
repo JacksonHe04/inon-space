@@ -1,4 +1,5 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server';
+import type { VisitorGeo } from '@/lib/analytics/geo';
 import {
   CHAT_PAGE_SIZE,
   rowToMessage,
@@ -57,6 +58,41 @@ export async function insertMessage(input: InsertMessageInput): Promise<ChatMess
 
   if (error) throw error;
   return rowToMessage(data as ChatMessageRow);
+}
+
+/**
+ * 单条消息的访客身份，单独一张表。
+ *
+ * 不塞进 chat_messages：那张表对匿名开放了 select，而且参与 realtime 广播，
+ * Supabase Realtime 推的是整行 —— 加 ip 列等于把每个访客的 IP 推给所有在场的人。
+ * RLS 只能按行过滤，拦不住列。
+ */
+export interface VisitorMetaInput {
+  messageId: string;
+  ipHash: string;
+  ip: string | null;
+  userAgent: string;
+  sessionId: string;
+  geo: VisitorGeo;
+}
+
+export async function insertVisitorMeta(input: VisitorMetaInput): Promise<void> {
+  const supabase = getSupabaseServerClient();
+
+  const { error } = await supabase.from('chat_visitor_meta').insert({
+    message_id: input.messageId,
+    ip_hash: input.ipHash,
+    ip: input.ip,
+    country: input.geo.country,
+    region: input.geo.region,
+    city: input.geo.city,
+    geo_lat: input.geo.latitude,
+    geo_lon: input.geo.longitude,
+    session_id: input.sessionId.slice(0, 64),
+    user_agent: input.userAgent.slice(0, 512),
+  });
+
+  if (error) throw error;
 }
 
 /**

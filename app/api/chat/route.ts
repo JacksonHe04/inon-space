@@ -6,6 +6,7 @@ import { ASSISTANT_NAME } from '@/lib/chat/persona';
 import {
   fetchRecentMessages,
   insertMessage,
+  insertVisitorMeta,
   isGloballyRateLimited,
   isRateLimited,
 } from '@/lib/chat/queries';
@@ -30,7 +31,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const payload = await request.json().catch(() => null as unknown);
-  const body = (payload ?? {}) as { content?: unknown; locale?: unknown; name?: unknown };
+  const body = (payload ?? {}) as {
+    content?: unknown;
+    locale?: unknown;
+    name?: unknown;
+    sessionId?: unknown;
+  };
 
   const text = typeof body.content === 'string' ? body.content.trim() : '';
   const locale =
@@ -60,6 +66,20 @@ export async function POST(request: Request) {
     avatarSeed: visitor.avatarSeed,
     visitorKey: visitor.key,
   });
+
+  // 身份信息写另一张匿名不可读的表。失败不该影响这次对话 —— 消息已经落库了
+  try {
+    await insertVisitorMeta({
+      messageId: visitorMessage.id,
+      ipHash: visitor.key,
+      ip: visitor.ip,
+      userAgent: visitor.userAgent,
+      sessionId: typeof body.sessionId === 'string' ? body.sessionId : '',
+      geo: visitor.geo,
+    });
+  } catch (error) {
+    console.error('[chat] 记录访客身份失败', error);
+  }
 
   const content = getContent(locale);
   const history = await fetchRecentMessages(CHAT_PAGE_SIZE);

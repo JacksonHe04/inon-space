@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 
 import { useIsClient } from '@/lib/use-is-client';
 import { Avatar, SeedAvatar } from '@/components/chat/avatar';
+import { getSessionId } from '@/lib/analytics/session';
 import { ASSISTANT_AVATAR } from '@/lib/chat/avatar';
 import {
   CHAT_MAX_LENGTH,
@@ -179,7 +180,12 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: text, locale, name: trimmedName }),
+          body: JSON.stringify({
+            content: text,
+            locale,
+            name: trimmedName,
+            sessionId: getSessionId(),
+          }),
         });
         const data = await response.json();
 
