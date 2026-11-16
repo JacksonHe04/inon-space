@@ -161,7 +161,10 @@ function readOs(raw: string): { name: string; version: string } {
   if (android) return { name: 'Android', version: android[1] };
 
   const windows = raw.match(/Windows NT ([\d.]+)/i);
-  if (windows) return { name: 'Windows', version: windows[1] };
+  if (windows) {
+    // NT 10.0 同时对应 Windows 10 和 11，写出来反而误导，只留系统名
+    return { name: 'Windows', version: windows[1] === '10.0' ? '' : windows[1] };
+  }
   if (/cros/i.test(raw)) return { name: 'ChromeOS', version: '' };
 
   const mac = raw.match(/Mac OS X ([\d_]+)/i);
