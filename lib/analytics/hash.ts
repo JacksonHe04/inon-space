@@ -51,44 +51,147 @@ export function extractReferrerDomain(referrer: string | null | undefined): stri
   }
 }
 
-/**
- * 极简 UA 解析：只认 device_type / browser / os 三样。
- * 不引 ua-parser-js —— 为了三个字段装一个依赖不划算。命中失败留空，读取层会归到「未知」。
- */
-export function parseUserAgent(ua: string | null | undefined): {
-  device_type: 'desktop' | 'mobile' | 'tablet' | 'bot' | '';
+export type DeviceType = 'desktop' | 'mobile' | 'tablet' | 'bot' | '';
+
+export interface ParsedUserAgent {
+  device_type: DeviceType;
+  /** 真实浏览器名，或 webview 的宿主 App（WeChat / QQ / …） */
   browser: string;
   os: string;
-} {
-  if (!ua) return { device_type: '', browser: '', os: '' };
+  os_version: string;
+  /** Android 的机型代码（M332BF / PLQ110）；iOS 的 UA 里没有机型，留空 */
+  device_model: string;
+  /** 宿主 App 的机器名（wechat / qq / …），真实浏览器为 '' */
+  webview: string;
+  /** 微信/QQ 的 UA 会带 NetType：4G / 5G / WIFI */
+  network_type: string;
+}
 
-  const lower = ua.toLowerCase();
-  let device_type: 'desktop' | 'mobile' | 'tablet' | 'bot' | '' = '';
+export const EMPTY_USER_AGENT: ParsedUserAgent = {
+  device_type: '',
+  browser: '',
+  os: '',
+  os_version: '',
+  device_model: '',
+  webview: '',
+  network_type: '',
+};
 
-  if (/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|embedly|preview/i.test(ua)) {
-    device_type = 'bot';
-  } else if (/ipad|tablet|playbook|silk/i.test(ua)) {
-    device_type = 'tablet';
-  } else if (/iphone|ipod|android.*mobile|windows phone|blackberry|opera mini|mobile/i.test(lower)) {
-    device_type = 'mobile';
-  } else if (/mozilla|chrome|safari|firefox|edge/i.test(lower)) {
-    device_type = 'desktop';
+/**
+ * webview 宿主识别。顺序有意义：微信、QQ 的 UA 里同时含 `wv`，
+ * 必须先命中具体 App，再由 `wv` 兜底到通用 WebView。
+ */
+const WEBVIEW_HOSTS: Array<[RegExp, string, string]> = [
+  [/micromessenger/i, 'wechat', 'WeChat'],
+  [/alipayclient/i, 'alipay', 'Alipay'],
+  [/dingtalk/i, 'dingtalk', 'DingTalk'],
+  [/weibo/i, 'weibo', 'Weibo'],
+  [/\baweme\b|bytedancewebview|toutiao/i, 'douyin', 'Douyin'],
+  [/baiduboxapp/i, 'baidu', 'Baidu'],
+  [/xiaohongshu/i, 'xiaohongshu', 'Xiaohongshu'],
+  [/qq\/[\d.]+/i, 'qq', 'QQ'],
+  [/\bwv\b/i, 'generic', 'WebView'],
+];
+
+const BROWSERS: Array<[RegExp, string]> = [
+  [/edg\//i, 'Edge'],
+  [/opr\/|opera/i, 'Opera'],
+  [/mqqbrowser|qqbrowser/i, 'QQBrowser'],
+  [/ucbrowser/i, 'UCBrowser'],
+  [/quark/i, 'Quark'],
+  [/firefox|fxios/i, 'Firefox'],
+  [/chrome|chromium|crios/i, 'Chrome'],
+  [/safari/i, 'Safari'],
+];
+
+/**
+ * 极简 UA 解析：只认统计要用的那几样。
+ *
+ * 当初只解析 device_type / browser / os 三个字段，所以没有引 ua-parser-js。
+ * 现在要多识别 webview 宿主、机型、网络制式 —— 这三样它都不给（NetType 和
+ * 微信/QQ 的宿主标识是国产 App 自己塞的），因此仍然用一个文件搞定，
+ * 不额外引入依赖。
+ */
+export function parseUserAgent(ua: string | null | undefined): ParsedUserAgent {
+  const raw = ua ?? '';
+  if (!raw) return EMPTY_USER_AGENT;
+
+  const lower = raw.toLowerCase();
+  const host = WEBVIEW_HOSTS.find(([pattern]) => pattern.test(raw));
+  const os = readOs(raw);
+
+  return {
+    device_type: readDeviceType(raw, lower),
+    // webview 里报宿主 App 名更有用：「来自微信的访客」比「来自 Chrome 的访客」信息量大
+    browser: (host ? host[2] : readBrowser(raw)).slice(0, 64),
+    os: os.name,
+    os_version: os.version.slice(0, 16),
+    device_model: readDeviceModel(raw),
+    webview: host?.[1] ?? '',
+    network_type: readNetworkType(raw),
+  };
+}
+
+function readDeviceType(raw: string, lower: string): DeviceType {
+  if (/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|embedly|preview/i.test(raw)) {
+    return 'bot';
+  }
+  if (/ipad|tablet|playbook|silk/i.test(raw)) return 'tablet';
+  if (/iphone|ipod|android.*mobile|windows phone|blackberry|opera mini|mobile/i.test(lower)) {
+    return 'mobile';
+  }
+  // Android 平板不带 Mobile 标记，落到这里
+  if (/android/i.test(lower)) return 'tablet';
+  if (/mozilla|chrome|safari|firefox|edge/i.test(lower)) return 'desktop';
+  return '';
+}
+
+function readOs(raw: string): { name: string; version: string } {
+  // iOS 必须排在 macOS 之前：iPhone 的 UA 里也写着 "like Mac OS X"
+  const ios = raw.match(/OS (\d+(?:_\d+)*)/);
+  if (/iphone|ipad|ipod/i.test(raw)) {
+    return { name: 'iOS', version: ios?.[1].replace(/_/g, '.') ?? '' };
   }
 
-  let browser = '';
-  if (/edg\//i.test(ua)) browser = 'Edge';
-  else if (/opr\/|opera/i.test(ua)) browser = 'Opera';
-  else if (/chrome|chromium|crios/i.test(ua)) browser = 'Chrome';
-  else if (/firefox|fxios/i.test(ua)) browser = 'Firefox';
-  else if (/safari/i.test(ua)) browser = 'Safari';
+  const android = raw.match(/Android ([\d.]+)/);
+  if (/harmonyos|openharmony/i.test(raw)) {
+    return { name: 'HarmonyOS', version: android?.[1] ?? '' };
+  }
+  if (android) return { name: 'Android', version: android[1] };
 
-  let os = '';
-  if (/windows nt/i.test(ua)) os = 'Windows';
-  else if (/mac os x|macintosh/i.test(ua)) os = 'macOS';
-  else if (/iphone os|ipad os/i.test(ua)) os = 'iOS';
-  else if (/android/i.test(ua)) os = 'Android';
-  else if (/cros/i.test(ua)) os = 'ChromeOS';
-  else if (/linux/i.test(ua)) os = 'Linux';
+  const windows = raw.match(/Windows NT ([\d.]+)/i);
+  if (windows) return { name: 'Windows', version: windows[1] };
+  if (/cros/i.test(raw)) return { name: 'ChromeOS', version: '' };
 
-  return { device_type, browser: browser.slice(0, 64), os };
+  const mac = raw.match(/Mac OS X ([\d_]+)/i);
+  if (mac) {
+    // Chrome 在 macOS 上把版本冻结成 10_15_7，这个值没有信息量，别入库
+    const version = mac[1].replace(/_/g, '.');
+    return { name: 'macOS', version: version === '10.15.7' ? '' : version };
+  }
+
+  if (/linux/i.test(raw)) return { name: 'Linux', version: '' };
+  return { name: '', version: '' };
+}
+
+function readBrowser(raw: string): string {
+  for (const [pattern, name] of BROWSERS) {
+    if (pattern.test(raw)) return name;
+  }
+  return '';
+}
+
+/** Android 的 UA 里机型写在 "Android x.y; <model> Build/" 中间 */
+function readDeviceModel(raw: string): string {
+  const matched = raw.match(/;\s*([^;()]+?)\s+Build\//i);
+  if (!matched) return '';
+
+  const model = matched[1].trim();
+  if (!model || /android|linux|windows|ios/i.test(model)) return '';
+  return model.slice(0, 64);
+}
+
+function readNetworkType(raw: string): string {
+  const matched = raw.match(/NetType\/([A-Za-z0-9]+)/i);
+  return matched ? matched[1].toUpperCase().slice(0, 8) : '';
 }
