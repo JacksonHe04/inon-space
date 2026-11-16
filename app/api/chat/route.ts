@@ -4,13 +4,18 @@ import { ASSISTANT_AVATAR_SEED } from '@/lib/chat/avatar';
 import { generateChatReply } from '@/lib/chat/generate';
 import { ASSISTANT_NAME } from '@/lib/chat/persona';
 import {
-  fetchRecentMessages,
+  fetchMessages,
   insertMessage,
   insertVisitorMeta,
   isGloballyRateLimited,
   isRateLimited,
 } from '@/lib/chat/queries';
-import { CHAT_MAX_LENGTH, CHAT_NAME_MAX_LENGTH, CHAT_PAGE_SIZE, suggestedFrom } from '@/lib/chat/types';
+import {
+  CHAT_CONTEXT_SIZE,
+  CHAT_MAX_LENGTH,
+  CHAT_NAME_MAX_LENGTH,
+  suggestedFrom,
+} from '@/lib/chat/types';
 import { getVisitorIdentity } from '@/lib/chat/visitor';
 import { getContent } from '@/lib/content';
 import { DEFAULT_LOCALE, isLocale } from '@/lib/i18n';
@@ -25,7 +30,7 @@ const GLOBAL_LIMIT_PER_MINUTE = 30;
 const GLOBAL_WINDOW_MS = 60_000;
 
 export async function GET() {
-  const messages = await fetchRecentMessages();
+  const messages = await fetchMessages();
   return NextResponse.json({ messages, suggested: suggestedFrom(messages) });
 }
 
@@ -82,7 +87,7 @@ export async function POST(request: Request) {
   }
 
   const content = getContent(locale);
-  const history = await fetchRecentMessages(CHAT_PAGE_SIZE);
+  const history = await fetchMessages(CHAT_CONTEXT_SIZE);
 
   const reply = await generateChatReply({
     content,

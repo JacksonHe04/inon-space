@@ -1,7 +1,6 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { VisitorGeo } from '@/lib/analytics/geo';
 import {
-  CHAT_PAGE_SIZE,
   rowToMessage,
   suggestedFrom,
   type ChatMessage,
@@ -9,23 +8,29 @@ import {
   type ChatSnapshot,
 } from '@/lib/chat/types';
 
-/** 按时间正序返回最近 limit 条消息（对外永远是从旧到新） */
-export async function fetchRecentMessages(limit: number = CHAT_PAGE_SIZE): Promise<ChatMessage[]> {
+/**
+ * 按时间正序返回消息（对外永远是从旧到新）。
+ *
+ * 不传 limit 就返回全部 —— 界面显示整段群聊，一条都不藏。
+ * 只有喂给模型的上下文需要截断，那是另一个调用方的事。
+ */
+export async function fetchMessages(limit?: number): Promise<ChatMessage[]> {
   const supabase = getSupabaseServerClient();
 
-  const { data, error } = await supabase
+  const query = supabase
     .from('chat_messages')
     .select('*')
-    .order('created_at', { ascending: false })
-    .limit(limit);
+    .order('created_at', { ascending: false });
+
+  const { data, error } = limit ? await query.limit(limit) : await query;
 
   if (error) throw error;
 
   return ((data ?? []) as ChatMessageRow[]).reverse().map(rowToMessage);
 }
 
-export async function fetchSnapshot(limit: number = CHAT_PAGE_SIZE): Promise<ChatSnapshot> {
-  const messages = await fetchRecentMessages(limit);
+export async function fetchSnapshot(limit?: number): Promise<ChatSnapshot> {
+  const messages = await fetchMessages(limit);
   return { messages, suggested: suggestedFrom(messages) };
 }
 

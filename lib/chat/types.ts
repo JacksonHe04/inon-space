@@ -65,7 +65,12 @@ export function suggestedFrom(messages: ChatMessage[]): string[] {
   return [];
 }
 
-export const CHAT_PAGE_SIZE = 40;
+/**
+ * 喂给模型的上下文条数。
+ *
+ * 只影响模型能看到多少历史，与界面无关 —— 界面显示全部消息。
+ */
+export const CHAT_CONTEXT_SIZE = 40;
 export const CHAT_MAX_LENGTH = 500;
 /** 访客自填名字的长度上限 —— 名字是署名，不需要长 */
 export const CHAT_NAME_MAX_LENGTH = 24;
