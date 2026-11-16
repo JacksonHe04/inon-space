@@ -1,5 +1,6 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { VisitorGeo } from '@/lib/analytics/geo';
+import { extractReferrerDomain } from '@/lib/analytics/hash';
 import {
   rowToMessage,
   suggestedFrom,
@@ -42,6 +43,10 @@ export interface InsertMessageInput {
   avatarSeed: string;
   visitorKey: string;
   suggestedQuestions?: string[];
+  /** 下面三项只有访客消息会填，用来在名字下面显示「iOS 27.3 · 微信 · WiFi」 */
+  visitorOs?: string;
+  visitorEntry?: string;
+  visitorNetwork?: string;
 }
 
 export async function insertMessage(input: InsertMessageInput): Promise<ChatMessage> {
@@ -57,6 +62,9 @@ export async function insertMessage(input: InsertMessageInput): Promise<ChatMess
       avatar_seed: input.avatarSeed,
       visitor_key: input.visitorKey,
       suggested_questions: input.suggestedQuestions ?? [],
+      visitor_os: input.visitorOs ?? '',
+      visitor_entry: input.visitorEntry ?? '',
+      visitor_network: input.visitorNetwork ?? '',
     })
     .select('*')
     .single();
@@ -98,6 +106,38 @@ export async function insertVisitorMeta(input: VisitorMetaInput): Promise<void> 
   });
 
   if (error) throw error;
+}
+
+/** 站内跳转不算入口，这两个域名下的 referrer 一律忽略 */
+const OWN_HOSTS = new Set(['inon.space', 'www.inon.space']);
+
+/**
+ * 这次会话是从哪儿进来的：取该会话最早那条访问记录的 referrer。
+ *
+ * 只在 webview 认不出入口时才查（微信/QQ 的 UA 已经能说明来源）。
+ * 失败返回空串 —— 入口是装饰信息，不该挡住发言。
+ */
+export async function fetchSessionEntry(sessionId: string): Promise<string> {
+  if (!sessionId) return '';
+
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('page_view_events')
+    .select('referrer, referrer_url')
+    .eq('session_id', sessionId)
+    .order('created_at', { ascending: true })
+    .limit(1);
+
+  if (error) return '';
+
+  const row = (data ?? [])[0] as
+    | { referrer: string | null; referrer_url: string | null }
+    | undefined;
+  if (!row) return '';
+
+  const domain = extractReferrerDomain(row.referrer_url || row.referrer);
+  if (!domain || OWN_HOSTS.has(domain)) return '';
+  return domain;
 }
 
 /**

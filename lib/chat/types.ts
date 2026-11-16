@@ -13,9 +13,15 @@ export interface ChatMessage {
   avatarSeed: string;
   /** 仅 assistant 消息有值 */
   suggestedQuestions: string[];
+  /** 访客的系统与版本，例如「iOS 27.3」；为空表示这条消息没有记录 */
+  visitorOs: string;
+  /** 入口：wechat / qq / 站外域名 / direct */
+  visitorEntry: string;
+  /** 4G / 5G / WIFI */
+  visitorNetwork: string;
 }
 
-/** 数据库行的原始形状 */
+  /** 数据库行的原始形状 */
 export interface ChatMessageRow {
   id: string;
   created_at: string;
@@ -25,6 +31,10 @@ export interface ChatMessageRow {
   location_label: string | null;
   avatar_seed: string;
   suggested_questions: string[] | null;
+  // 下面三列是 2026-11-16 加的，旧行没有值
+  visitor_os?: string | null;
+  visitor_entry?: string | null;
+  visitor_network?: string | null;
 }
 
 export function rowToMessage(row: ChatMessageRow): ChatMessage {
@@ -37,6 +47,9 @@ export function rowToMessage(row: ChatMessageRow): ChatMessage {
     locationLabel: row.location_label,
     avatarSeed: row.avatar_seed,
     suggestedQuestions: row.suggested_questions ?? [],
+    visitorOs: row.visitor_os ?? '',
+    visitorEntry: row.visitor_entry ?? '',
+    visitorNetwork: row.visitor_network ?? '',
   };
 }
 

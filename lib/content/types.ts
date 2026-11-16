@@ -242,6 +242,15 @@ export interface Labels {
   assistantName: string;
   /** 访客自己那条乐观消息的署名，等服务器返回真实身份前的占位 */
   you: string;
+  /**
+   * 匿名访客的称呼，`{place}` 换成地名，如「{place}的访客」。
+   * 名字由前端拼而不是存库，这样中英文各用各的句式。
+   */
+  visitorFallback: string;
+  /** 连地理头都没拿到时的兜底称呼 */
+  visitorUnknown: string;
+  /** 入口标识 → 显示名：wechat / qq / direct … */
+  chatSources: Record<string, string>;
   /** 访客名字输入框的占位符，如「留下名字...」。不加说明文案，占位符自己说明用途 */
   chatNamePlaceholder: string;
   chatSending: string;

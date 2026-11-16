@@ -54,7 +54,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'too_long' }, { status: 400 });
   }
 
-  const visitor = await getVisitorIdentity();
+  const sessionId = typeof body.sessionId === 'string' ? body.sessionId.slice(0, 64) : '';
+  const visitor = await getVisitorIdentity(sessionId);
 
   if (await isRateLimited(visitor.key, RATE_LIMIT_MS)) {
     return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
@@ -66,10 +67,13 @@ export async function POST(request: Request) {
   const visitorMessage = await insertMessage({
     role: 'visitor',
     content: text,
-    displayName: readDisplayName(body.name, visitor.displayName),
+    displayName: readDisplayName(body.name),
     locationLabel: visitor.locationLabel,
     avatarSeed: visitor.avatarSeed,
     visitorKey: visitor.key,
+    visitorOs: visitor.os,
+    visitorEntry: visitor.entry,
+    visitorNetwork: visitor.network,
   });
 
   // 身份信息写另一张匿名不可读的表。失败不该影响这次对话 —— 消息已经落库了
@@ -79,7 +83,7 @@ export async function POST(request: Request) {
       ipHash: visitor.key,
       ip: visitor.ip,
       userAgent: visitor.userAgent,
-      sessionId: typeof body.sessionId === 'string' ? body.sessionId : '',
+      sessionId,
       geo: visitor.geo,
     });
   } catch (error) {
@@ -130,15 +134,15 @@ export async function POST(request: Request) {
 }
 
 /**
- * 访客可以自己填名字，不填就用地理头推出来的那个。
+ * 访客可以自己填名字；不填就返回空串，由前端按当前语言拼「来自某地的访客」。
  *
  * 两条防线：
  * - 控制字符与换行清掉、长度截断，别让人用名字把版面撑坏；
  * - **不许冒充 AI**。否则任何人把名字填成「小缨缨」就能在群里以她身份说话，
- *   而群聊是公开存证的，这种冒充看起来和真的一样。撞名就退回地理名。
+ *   而群聊是公开存证的，这种冒充看起来和真的一样。撞名就当没填。
  */
-function readDisplayName(raw: unknown, fallback: string): string {
-  if (typeof raw !== "string") return fallback;
+function readDisplayName(raw: unknown): string {
+  if (typeof raw !== "string") return "";
 
   const name = raw
     // \p{Cc} 覆盖控制字符（含换行、制表），写进名字会把版面撑坏
@@ -146,6 +150,6 @@ function readDisplayName(raw: unknown, fallback: string): string {
     .trim()
     .slice(0, CHAT_NAME_MAX_LENGTH);
 
-  if (!name || name === ASSISTANT_NAME) return fallback;
+  if (!name || name === ASSISTANT_NAME) return "";
   return name;
 }

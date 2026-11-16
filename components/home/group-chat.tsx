@@ -172,6 +172,9 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
             locationLabel: null,
             avatarSeed: tempId,
             suggestedQuestions: [],
+            visitorOs: '',
+            visitorEntry: '',
+            visitorNetwork: '',
           },
         ])
       );
@@ -252,6 +255,33 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
             <ol className="space-y-4">
               {messages.map((message) => {
                 const isAssistant = message.role === 'assistant';
+
+                // 匿名访客的名字按当前语言拼：「北京海淀的访客」/「Visitor from Beijing」
+                const name = isAssistant
+                  ? labels.assistantName
+                  : message.displayName ||
+                    (message.locationLabel
+                      ? fillTemplate(labels.visitorFallback, { place: message.locationLabel })
+                      : labels.visitorUnknown);
+
+                // 名字下面是这一行：系统、入口、网络。有自填名字时才把地点补进来
+                // （匿名访客的地名已经在名字里了）。三者全空就不显示，免得历史消息
+                // 出现一行只有地名的重复信息。
+                const detail = [
+                  message.visitorOs,
+                  message.visitorEntry
+                    ? labels.chatSources[message.visitorEntry] ?? message.visitorEntry
+                    : '',
+                  message.visitorNetwork === 'WIFI' ? 'WiFi' : message.visitorNetwork,
+                ].filter(Boolean);
+
+                const meta =
+                  isAssistant || detail.length === 0
+                    ? []
+                    : [message.displayName ? message.locationLabel ?? '' : '', ...detail].filter(
+                        Boolean
+                      );
+
                 return (
                   <li key={message.id} className="flex gap-2.5">
                     {isAssistant ? (
@@ -268,7 +298,7 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
                           )}
                         >
                           {/* AI 的名字按当前语言显示；数据库里存的那份是全局唯一的 */}
-                          {isAssistant ? labels.assistantName : message.displayName}
+                          {name}
                         </span>
                         {isAssistant ? (
                           <span
@@ -289,6 +319,11 @@ export function GroupChat({ initial, labels, locale }: GroupChatProps) {
                           </time>
                         ) : null}
                       </div>
+                      {meta.length > 0 ? (
+                        <p className="text-muted-foreground mt-0.5 text-[0.66rem] leading-snug">
+                          {meta.join(' · ')}
+                        </p>
+                      ) : null}
                       <p className="mt-0.5 text-[0.88rem] leading-relaxed whitespace-pre-wrap text-pretty">
                         {message.content}
                       </p>
