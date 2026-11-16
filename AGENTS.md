@@ -56,7 +56,10 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 
 - **事件名与 world 站共用 `page_view`**，这是刻意的：底栏那个数字的含义是「这个站被看过多少次」，v3 是新站，从 0 起算等于把过去的访问量抹掉。共用之后数字接着 world 往下累加。代价是它统计的是两个域名合起来的量——这是作者要的口径，别「顺手修正」。
 - **只在正式环境计数。** 判断是服务端做的（`VERCEL_ENV === 'production'`），再作为 prop 传给客户端——客户端组件读 `process.env` 只会拿到 `undefined`，Next 只内联 `NEXT_PUBLIC_*`。
-- **IP 哈希只有一套实现**（`lib/analytics/hash.ts`），群聊的访客标识也用它。盐缺失时 `getIpSalt()` 直接抛错：回退到硬编码的盐等于把「不存原始 IP」变成一句空话。
+- **IP 哈希只有一套实现**（`lib/analytics/hash.ts`），群聊的访客标识也用它。盐缺失时 `getIpSalt()` 直接抛错：回退到硬编码的盐等于让「是不是同一个人」这个判断形同虚设。
+- **`page_view_events` 里存原始 IP 与坐标**（2026-11-16 起，作者决定）。Vercel 给的经纬度是 **IP 库的城市质心，不是 GPS**，误差以公里计。这张表是 inon 与 world 共用的，加列只能加带默认值的增量列；RPC `page_view_record` 改签名时必须先 `drop` 旧签名，否则两个签名会变成重载、PostgREST 按参数名解析时无法唯一确定。
+- **保留期靠 `prune_visitor_pii(days)`**：把过期事件的 `ip` / `geo_lat` / `geo_lon` 清成 null，只留哈希。没加定时任务之前，这些原始数据会一直躺着。
+- 想看某个时间窗里「谁来了、看了什么、说了什么」，用 `node scripts/visitor-report.mjs --from ... --to ...`。脚本在 `.gitignore` 里，不进仓库——它会打印原始 IP。
 
 ### 内容的两个住处
 
@@ -100,7 +103,7 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 四条不能破坏的边界：
 
 - **头像不存图**。seed → FNV-1a → 色相 + 六种几何图形之一，确定性推导（`lib/chat/avatar.ts`）。
-- **不存原始 IP**。只存加盐 SHA-256 的前 16 位，用来判断「是不是同一个人」。salt 取自 `ANALYTICS_IP_SALT`；回落到代码里那个硬编码值时，等于隐私保护失效——salt 公开意味着任何人都能枚举 IPv4 空间把访客 IP 反推出来。
+- **身份写在旁边的表里**。`chat_messages` 对匿名开放 select，而且参与 Realtime 广播——Realtime 推的是整行，往里加 IP 列等于把每个访客的 IP 广播给所有在场的人，RLS 只按行过滤、拦不住列。所以原始 IP、坐标、UA 落在 `chat_visitor_meta`（匿名 deny-all），由服务端 secret key 读写。`visitor_key`（加盐哈希前 16 位）只管头像种子与节流。
 - **节流放数据库**，不放内存（`isRateLimited`）。serverless 实例随时会换，内存计数器拦不住。同一访客 8 秒冷却。
 - **匿名只能读**。`chat_messages` 对匿名只开放 select，不开放 insert；所有写入走服务端 secret key。否则任何人都能伪造 assistant 身份发言。
 

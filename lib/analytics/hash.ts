@@ -12,7 +12,8 @@ import { createHash } from 'node:crypto';
  * 读取并校验 IP 哈希盐。
  *
  * 缺失时**直接抛错**，不退化成无盐哈希 —— 无盐意味着任何人都能枚举 IPv4 空间
- * 反推出访客 IP，那样「不存原始 IP」这个承诺就是空的。宁可让请求失败得明显一点。
+ * 反推出访客 IP，那样 `ip_hash` 就失去了「只做去重、不做身份」的意义。
+ * 宁可让请求失败得明显一点。
  */
 export function getIpSalt(): string {
   const salt = process.env.ANALYTICS_IP_SALT;
