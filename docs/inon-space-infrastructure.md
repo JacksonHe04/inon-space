@@ -27,6 +27,7 @@
 | next-claw | `JacksonHe04/next-claw` | `Codes/next-claw` | `next-claw` | `claw.inon.space` |
 | Sand（私有） | `JacksonHe04/Sand` | `Codes/Sand` | `sand` | `sand.inon.space` |
 | FDE Anything（私有） | `JacksonHe04/fde-anything` | `Codes/fde-anything` | `ondeskbot` | `studio.inon.space` |
+| YOYI Studio（私有） | `JacksonHe04/yoyi-studio` | `Codes/yoyi-studio` | `yoyi-studio` | `yoyi.inon.space/studio`（站点 basePath 固定 `/studio`，根路径 307 到它） |
 
 ## 2. 本次新分配域名（2026-09-25）
 
