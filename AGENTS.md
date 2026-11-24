@@ -98,7 +98,7 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 浏览器 → Supabase Realtime 订阅 INSERT，别人发的消息实时出现
 ```
 
-模型入口是 `lib/ai.ts`，走 OpenRouter，用 AI SDK 的 OpenAI 兼容适配器接入。**代码里不出现模型名**，换模型只改 `AI_MODEL` 环境变量。人设与输出 schema 在 `lib/chat/persona.ts`。
+模型入口是 `lib/ai.ts`，走智谱 BigModel 的 OpenAI 兼容适配器，按 `BIGMODEL_CHAT_MODELS` 的顺序做主备降级。**代码里不出现除默认链以外的模型名**，调整模型顺序或替换只改环境变量。人设与输出 schema 在 `lib/chat/persona.ts`。
 
 四条不能破坏的边界：
 
@@ -128,7 +128,7 @@ GALLERY 没有总览层。`/gallery` 与 `/gallery/[category]` 都只做 redirec
 - Next.js 16 App Router + React 19 + TypeScript，React Compiler 已开启
 - Tailwind 4 + shadcn（`style: radix-nova`），语义色 token 在 `app/globals.css`
 - 数据：Supabase（`library_items` / `chat_messages`）
-- 模型：Vercel AI SDK + OpenRouter
+- 模型：Vercel AI SDK + 智谱 BigModel（OpenAI 兼容）
 - 其他技术请见 `package.json`，务必物尽其用，不要重复造轮子
 
 ### 视觉

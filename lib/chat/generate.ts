@@ -1,6 +1,6 @@
 import { generateText } from 'ai';
 
-import { chatRequestHeaders, getChatModel } from '@/lib/ai';
+import { chatRequestHeaders, getChatModel, getChatModels } from '@/lib/ai';
 import { buildSystemPrompt, buildTranscript, chatReplySchema, type ChatReplyOutput } from '@/lib/chat/persona';
 import { contentToMarkdown } from '@/lib/content/chat-context';
 import type { Content } from '@/lib/content/types';
@@ -23,56 +23,57 @@ export interface ChatTurn {
 export interface GenerateChatReplyInput {
   content: Content;
   history: ChatTurn[];
-  /** 访客标识，用作 x-opencode-session */
-  sessionId: string;
 }
 
 /**
  * 让模型产一条回复，并把它变成结构化的结果。
  *
  * **刻意不走 `Output.object`。** 那个入口会要求 provider 支持结构化输出，而
- * OpenCode Go 上的 `deepseek-v4.1-flash` 收到 `response_format` 直接 400 ——
- * 不是告警降级，是整条请求失败。之前的 OpenRouter/glm-4.5 只是不支持 schema、
- * 退化成「让模型自己写 JSON 再 parse」，所以那时还能靠兜底救回来。
+ * 部分兼容端点收到 `response_format` 会直接 400 —— 不是告警降级，是整条请求失败。
+ * 这里索性不依赖它：提示词里已经写明只输出 JSON，代码这边负责从文本里把那个 JSON
+ * 抠出来、过一遍 zod。一条路径，与 provider 能力无关。
  *
- * 既然两种 provider 都不能指望，这里索性不依赖它：提示词里已经写明只输出 JSON，
- * 代码这边负责从文本里把那个 JSON 抠出来、过一遍 zod。一条路径，与 provider 能力无关。
+ * 外层按 `getChatModels()` 的顺序做模型降级：provider 级错误（鉴权、限流、模型
+ * 下线、网络错误）直接 break 当前模型、换下一个；解析失败属于输出格式问题，留在
+ * 当前模型内重试 `ATTEMPTS` 次。
  */
 export async function generateChatReply({
   content,
   history,
-  sessionId,
 }: GenerateChatReplyInput): Promise<ChatReplyOutput | null> {
   const system = buildSystemPrompt(contentToMarkdown(content));
   const prompt = buildTranscript(history);
 
-  for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
-    try {
-      const { text } = await generateText({
-        model: getChatModel(),
-        system,
-        prompt,
-        temperature: 0.7,
-        maxOutputTokens: MAX_OUTPUT_TOKENS,
-        headers: chatRequestHeaders(sessionId),
-      });
+  for (const model of getChatModels()) {
+    for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
+      try {
+        const { text } = await generateText({
+          model: getChatModel(model),
+          system,
+          prompt,
+          temperature: 0.7,
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+          headers: chatRequestHeaders(),
+        });
 
-      const parsed = parseReply(text);
-      if (parsed) return parsed;
+        const parsed = parseReply(text);
+        if (parsed) return parsed;
 
-      // 最后一次仍然不是 JSON：模型干脆只回了句大白话。那就是回复本身，
-      // 不能因为少了个 JSON 外壳就让访客看到「发送失败」。
-      if (attempt === ATTEMPTS) {
-        const salvaged = salvageReply(text);
-        if (salvaged) {
-          console.warn(`[chat] 第 ${attempt}/${ATTEMPTS} 次输出没有 JSON，按纯文本回复`, text.slice(0, 200));
-          return salvaged;
+        // 最后一次仍然不是 JSON：模型干脆只回了句大白话。那就是回复本身，
+        // 不能因为少了个 JSON 外壳就让访客看到「发送失败」。
+        if (attempt === ATTEMPTS) {
+          const salvaged = salvageReply(text);
+          if (salvaged) {
+            console.warn(`[chat] ${model} 第 ${attempt}/${ATTEMPTS} 次输出没有 JSON，按纯文本回复`, text.slice(0, 200));
+            return salvaged;
+          }
         }
-      }
 
-      console.error(`[chat] 第 ${attempt}/${ATTEMPTS} 次输出无法解析`, text.slice(0, 400));
-    } catch (error) {
-      console.error(`[chat] 第 ${attempt}/${ATTEMPTS} 次生成失败`, error);
+        console.error(`[chat] ${model} 第 ${attempt}/${ATTEMPTS} 次输出无法解析`, text.slice(0, 400));
+      } catch (error) {
+        console.error(`[chat] 模型 ${model} 第 ${attempt}/${ATTEMPTS} 次生成失败，降级到下一个模型`, error);
+        break;
+      }
     }
   }
 

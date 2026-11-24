@@ -95,7 +95,6 @@ export async function POST(request: Request) {
 
   const reply = await generateChatReply({
     content,
-    sessionId: visitor.key,
     history: history.map((message) => ({
       role: message.role,
       displayName: message.displayName,
