@@ -130,23 +130,12 @@ export const contentZh = {
 
     // 实习（倒序）
     {
-      id: 'baidu',
-      kind: 'work',
-      org: '百度',
-      branch: '模型委员会 AMU',
-      role: '产品',
-      period: '2026.10 – 现在',
-      location: '北京',
-      description: '全模态视频生成训练数据质检体系，视频编辑 PE 生产链路落地，模型效果评测与多模态前沿追踪',
-      logo: '/logos/orgs/baidu.svg',
-    },
-    {
       id: 'sand-ai',
       kind: 'work',
       org: 'Sand.ai',
       branch: 'VidMuse',
       role: '产品',
-      period: '2026.07 – 2026.09',
+      period: '2026.07 – 现在',
       location: '北京',
       description:
         'VidMuse AppHub 0-1 Infra 建设，无限画布 Agent Harness 迭代优化，自研模型后训练数据管道支持',

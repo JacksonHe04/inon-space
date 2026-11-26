@@ -129,24 +129,12 @@ export const contentEn = {
 
     // Internships, most recent first
     {
-      id: 'baidu',
-      kind: 'work',
-      org: 'Baidu',
-      branch: 'Model Committee AMU',
-      role: 'Product',
-      period: '2026.10 – present',
-      location: 'Beijing',
-      description:
-        'Full-modality video generation training data QA system, video-editing PE production pipeline delivery, model evaluation and multimodal frontier tracking',
-      logo: '/logos/orgs/baidu.svg',
-    },
-    {
       id: 'sand-ai',
       kind: 'work',
       org: 'Sand.ai',
       branch: 'VidMuse',
       role: 'Product',
-      period: '2026.07 – 2026.09',
+      period: '2026.07 – present',
       location: 'Beijing',
       description:
         'Built the VidMuse AppHub infrastructure from zero to one, iterated on the infinite-canvas Agent Harness, and supported the post-training data pipeline for in-house models',
